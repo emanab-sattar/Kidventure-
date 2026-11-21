@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Game Inventor | Kidventure</title>
+    <meta
+      name="description"
+      content="Turn everyday objects into exciting real-world games with Kidventure AI Game Inventor."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./adventures.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <!-- Main page wrapper with shared header, Game Inventor area, and footer -->
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+      <header id="site-header"></header>
+
+      <!-- Main content box where JavaScript draws the current Game Inventor step -->
+      <main id="main-content" class="page-content">
+        <section id="game-inventor-root" class="adventure-page"></section>
+      </main>
+
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./adventures.js"></script>
+    <script>
+      var user = requireSignedInUser('game-inventor');
+      var root = document.getElementById('game-inventor-root');
+      var quickRuleIdeas = ['Make it harder.', 'Can two people play?', 'Change the rules!'];
+
+      var gameState = {
+        step: 'input',
+        image: null,
+        notes: '',
+        inputError: '',
+        loadingMode: 'generate',
+        loadingError: '',
+        gamePlan: null,
+        changeRequest: '',
+        changeError: '',
+        saved: false
+      };
+
+      // Takes the child back to the My Progress page
+      function goBackToProgress() {
+        window.location.href = './progress.html';
+      }
+
+      // Builds the top Back button, name tag, and sand-colored AI Game Inventor banner
+      function makeBannerHtml() {
+        return (
+          '<div class="top-bar-row">' +
+            '<button type="button" data-go-back class="back-button back-button-sand">' +
+              drawSmallIcon('arrow-left', 'small-icon') +
+              '<span>Back to Adventures</span>' +
+            '</button>' +
+            '<div class="user-tag">' +
+              '<span>' + makeTextSafe(user.nickname) + '</span>' +
+              ' &middot; ' +
+              '<span>Ages ' + makeTextSafe(user.ageGroup) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="banner-card banner-sand">' +
+            '<div class="banner-grid">' +
+              '<div>' +
+                '<p class="small-label">Invent &amp; Play</p>' +
+                '<h1 class="banner-title">AI Game Inventor</h1>' +
+                '<p class="banner-desc">Show a picture of everyday objects around you and invent a brand-new offline game!</p>' +
+              '</div>' +
+              '<div class="banner-art">' + buildActivityOwlSvg('game-inventor') + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      // Draws whichever step of AI Game Inventor is currently open
+      function drawGamePage() {
+        if (!user || !root) return;
+        var bodyHtml = '';
+
+        if (gameState.step === 'input') {
+          var errorHtml = '';
+          if (gameState.inputError) {
+            errorHtml = '<div role="alert" class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(gameState.inputError) + '</span></div>';
+          }
+
+          bodyHtml =
+            '<div class="panel-card">' +
+              '<div>' +
+                '<h2 class="panel-title">Show Everyday Items You Want to Play With</h2>' +
+                '<p class="panel-subtitle">Take a quick picture or upload a JPG or PNG photo to invent a real-world game.</p>' +
+              '</div>' +
+              errorHtml +
+              '<div id="photo-picker-box"></div>' +
+              '<div class="detail-box detail-cream detail-box-list">' +
+                '<div class="field-group">' +
+                  '<label for="game-notes-textarea" class="field-label">Tell us what objects or game twist you want (Optional: Text or Voice)</label>' +
+                  '<textarea id="game-notes-textarea" rows="2" placeholder="e.g., We have 5 paper cups and two rolled-up socks!" class="textarea-input">' + makeTextSafe(gameState.notes) + '</textarea>' +
+                '</div>' +
+                '<div id="voice-input-box"></div>' +
+              '</div>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-go-back class="button button-white">' + drawSmallIcon('arrow-left', 'small-icon') + '<span>Back to Adventures</span></button>' +
+                '<div class="footer-actions">' +
+                  '<button type="button" id="preview-loading-btn" class="back-button back-button-sand">' + drawSmallIcon('eye', 'small-icon') + '<span>Preview Loading Screen</span></button>' +
+                  '<button type="button" id="create-game-btn" class="button button-sand button-large"><span>Create My Game</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        } else if (gameState.step === 'loading') {
+          bodyHtml = '<div id="discovery-room-box"></div>';
+        } else if (gameState.step === 'result' && gameState.gamePlan) {
+          var plan = gameState.gamePlan;
+          var materialsHtml = '';
+          for (var i = 0; i < plan.materials.length; i++) {
+            materialsHtml += '<li>&bull; ' + makeTextSafe(plan.materials[i]) + '</li>';
+          }
+          var stepsHtml = '';
+          for (var j = 0; j < plan.instructions.length; j++) {
+            stepsHtml += '<li><span class="step-badge">' + (j + 1) + '</span><span>' + makeTextSafe(plan.instructions[j]) + '</span></li>';
+          }
+
+          var updateBannerHtml = '';
+          if (plan.appliedModification) {
+            updateBannerHtml = '<div class="update-banner">Updated for your request: &ldquo;' + makeTextSafe(plan.appliedModification) + '&rdquo;</div>';
+          }
+
+          var saveButtonHtml = '<button type="button" id="complete-game-btn" class="button button-yellow">' + drawSmallIcon('star', 'small-icon') + '<span>I Played This Offline!</span></button>';
+          if (gameState.saved) {
+            saveButtonHtml = '<button type="button" data-go-back class="button button-mint">' + drawSmallIcon('circle-check', 'small-icon') + '<span>Saved! View My Progress</span></button>';
+          }
+
+          bodyHtml =
+            '<div class="panel-card">' +
+              '<div class="sample-banner">' + drawSmallIcon('sparkles', 'small-icon') + '<span>Sample Game Preview</span></div>' +
+              updateBannerHtml +
+              '<div>' +
+                '<p class="small-label">Your Real-World Game Plan</p>' +
+                '<h2 class="banner-title">' + makeTextSafe(plan.title) + '</h2>' +
+                '<p class="difficulty-line">Difficulty: <span class="difficulty-value">' + makeTextSafe(plan.difficulty) + '</span></p>' +
+              '</div>' +
+              '<div class="two-col-grid">' +
+                '<div class="detail-box detail-cream">' +
+                  '<h3 class="detail-box-title">Objective</h3>' +
+                  '<p class="detail-box-text">' + makeTextSafe(plan.objective) + '</p>' +
+                  '<h3 class="detail-box-title detail-box-title-spaced">Materials Needed</h3>' +
+                  '<ul class="bullet-list">' + materialsHtml + '</ul>' +
+                '</div>' +
+                '<div class="detail-box detail-sand">' +
+                  '<h3 class="detail-box-title">How to Play</h3>' +
+                  '<ol class="step-number-list">' + stepsHtml + '</ol>' +
+                '</div>' +
+              '</div>' +
+              '<div class="panel-footer">' +
+                '<div class="footer-actions">' +
+                  '<button type="button" id="open-modify-btn" class="button button-sand">' + drawSmallIcon('pencil', 'small-icon') + '<span>Modify Game</span></button>' +
+                  '<button type="button" id="reset-game-btn" class="button button-white">' + drawSmallIcon('refresh-cw', 'small-icon') + '<span>Try Another Game</span></button>' +
+                '</div>' +
+                '<div class="footer-actions">' + saveButtonHtml + '</div>' +
+              '</div>' +
+            '</div>';
+        } else if (gameState.step === 'modify' && gameState.gamePlan) {
+          var changeErrorHtml = '';
+          if (gameState.changeError) {
+            changeErrorHtml = '<div role="alert" class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(gameState.changeError) + '</span></div>';
+          }
+
+          var ideaButtonsHtml = '';
+          for (var q = 0; q < quickRuleIdeas.length; q++) {
+            ideaButtonsHtml += '<button type="button" data-quick-idea="' + makeTextSafe(quickRuleIdeas[q]) + '" class="idea-button">' + makeTextSafe(quickRuleIdeas[q]) + '</button>';
+          }
+
+          bodyHtml =
+            '<form id="modify-game-form" class="panel-card" novalidate>' +
+              '<div class="panel-header">' +
+                '<div>' +
+                  '<p class="small-label">Modify Your Game</p>' +
+                  '<h2 class="panel-title">How Should We Change &ldquo;' + makeTextSafe(gameState.gamePlan.title) + '&rdquo;?</h2>' +
+                '</div>' +
+                '<button type="button" data-back-to-result class="back-button">' + drawSmallIcon('arrow-left', 'small-icon') + '<span>Back to Game</span></button>' +
+              '</div>' +
+              changeErrorHtml +
+              '<div>' +
+                '<p class="small-label ideas-label">Quick Ideas You Can Tap</p>' +
+                '<div class="idea-row">' + ideaButtonsHtml + '</div>' +
+              '</div>' +
+              '<div class="field-group">' +
+                '<label for="change-rules-textarea" class="field-label">Type your rule change</label>' +
+                '<textarea id="change-rules-textarea" rows="3" placeholder="e.g., Make it harder, let two people play, or add a secret time freeze!" class="textarea-input">' + makeTextSafe(gameState.changeRequest) + '</textarea>' +
+              '</div>' +
+              '<div id="modify-voice-box"></div>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-back-to-result class="button button-white"><span>Cancel</span></button>' +
+                '<button type="submit" class="button button-sand button-large"><span>Update Game Rules</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+              '</div>' +
+            '</form>';
+        }
+
+        root.innerHTML = makeBannerHtml() + bodyHtml;
+
+        var backButtons = root.querySelectorAll('[data-go-back]');
+        for (var b = 0; b < backButtons.length; b++) {
+          backButtons[b].onclick = goBackToProgress;
+        }
+
+        if (gameState.step === 'input') {
+          setupPhotoPicker(document.getElementById('photo-picker-box'), {
+            image: gameState.image,
+            buttonAccentClass: 'button-sand',
+            uploadLabel: 'Upload Image',
+            sampleLabel: 'Use sample cups & socks picture',
+            onChange: function (chosenImage) {
+              gameState.image = chosenImage;
+              gameState.inputError = '';
+              var alertBox = root.querySelector('[role="alert"]');
+              if (alertBox && chosenImage) alertBox.classList.add('hidden');
+            }
+          });
+
+          var notesTextarea = document.getElementById('game-notes-textarea');
+          notesTextarea.oninput = function () {
+            gameState.notes = notesTextarea.value;
+            gameState.inputError = '';
+          };
+
+          setupVoiceInput(document.getElementById('voice-input-box'), {
+            label: 'Record Voice Description',
+            onTranscript: function (spokenText) {
+              if (gameState.notes) {
+                gameState.notes = gameState.notes + ' ' + spokenText;
+              } else {
+                gameState.notes = spokenText;
+              }
+              gameState.inputError = '';
+              notesTextarea.value = gameState.notes;
+            }
+          });
+
+          document.getElementById('preview-loading-btn').onclick = function () {
+            gameState.inputError = '';
+            gameState.loadingMode = 'generate';
+            gameState.loadingError = '';
+            gameState.step = 'loading';
+            drawGamePage();
+          };
+
+          document.getElementById('create-game-btn').onclick = function () {
+            if (!gameState.image && !gameState.notes.trim()) {
+              gameState.inputError = 'Please upload a photo, use your camera, or describe your everyday items in words first!';
+              drawGamePage();
+              return;
+            }
+            gameState.inputError = '';
+            gameState.loadingMode = 'generate';
+            gameState.loadingError = '';
+            gameState.step = 'loading';
+            drawGamePage();
+          };
+        } else if (gameState.step === 'loading') {
+          var statusText = 'Inventing Your Real-World Game';
+          var nextButtonText = 'View Sample Game';
+          if (gameState.loadingMode === 'modify') {
+            statusText = 'Updating Your Game Rules';
+            nextButtonText = 'View Modified Sample Game';
+          }
+
+          showDiscoveryRoom(document.getElementById('discovery-room-box'), {
+            environment: 'playroom',
+            statusLabel: statusText,
+            resultButtonLabel: nextButtonText,
+            errorMessage: gameState.loadingError,
+            onContinueToSample: function () {
+              if (gameState.loadingMode === 'modify' && gameState.gamePlan) {
+                gameState.gamePlan = getModifiedGame(gameState.changeRequest, user.ageGroup);
+                gameState.changeRequest = '';
+              } else {
+                gameState.gamePlan = getSampleGame(user.ageGroup);
+              }
+              gameState.saved = false;
+              gameState.step = 'result';
+              drawGamePage();
+            },
+            onCancelToInput: function () {
+              gameState.loadingError = '';
+              if (gameState.loadingMode === 'modify') {
+                gameState.step = 'modify';
+              } else {
+                gameState.step = 'input';
+              }
+              drawGamePage();
+            },
+            onRetryRequest: function () {
+              gameState.loadingError = '';
+              drawGamePage();
+            }
+          });
+        } else if (gameState.step === 'result') {
+          document.getElementById('open-modify-btn').onclick = function () {
+            gameState.changeError = '';
+            gameState.step = 'modify';
+            drawGamePage();
+          };
+          document.getElementById('reset-game-btn').onclick = function () {
+            gameState.image = null;
+            gameState.notes = '';
+            gameState.gamePlan = null;
+            gameState.changeRequest = '';
+            gameState.inputError = '';
+            gameState.changeError = '';
+            gameState.loadingError = '';
+            gameState.saved = false;
+            gameState.step = 'input';
+            drawGamePage();
+          };
+          var completeButton = document.getElementById('complete-game-btn');
+          if (completeButton) {
+            completeButton.onclick = function () {
+              if (!gameState.gamePlan || gameState.saved) return;
+              saveNewAdventure({
+                id: 'game-inventor-' + Date.now(),
+                feature: 'game-inventor',
+                title: gameState.gamePlan.title,
+                domain: 'Move',
+                completedAt: 'Just now'
+              });
+              gameState.saved = true;
+              drawGamePage();
+            };
+          }
+        } else if (gameState.step === 'modify') {
+          var changeTextarea = document.getElementById('change-rules-textarea');
+          changeTextarea.oninput = function () {
+            gameState.changeRequest = changeTextarea.value;
+            gameState.changeError = '';
+          };
+
+          var ideaButtons = root.querySelectorAll('[data-quick-idea]');
+          for (var k = 0; k < ideaButtons.length; k++) {
+            ideaButtons[k].onclick = function () {
+              gameState.changeRequest = this.getAttribute('data-quick-idea');
+              gameState.changeError = '';
+              changeTextarea.value = gameState.changeRequest;
+            };
+          }
+
+          setupVoiceInput(document.getElementById('modify-voice-box'), {
+            label: 'Speak Your Rule Change',
+            onTranscript: function (spokenText) {
+              if (gameState.changeRequest) {
+                gameState.changeRequest = gameState.changeRequest + ' ' + spokenText;
+              } else {
+                gameState.changeRequest = spokenText;
+              }
+              gameState.changeError = '';
+              changeTextarea.value = gameState.changeRequest;
+            }
+          });
+
+          var backResultButtons = root.querySelectorAll('[data-back-to-result]');
+          for (var m = 0; m < backResultButtons.length; m++) {
+            backResultButtons[m].onclick = function () {
+              gameState.step = 'result';
+              drawGamePage();
+            };
+          }
+
+          document.getElementById('modify-game-form').onsubmit = function (event) {
+            event.preventDefault();
+            if (!gameState.changeRequest.trim()) {
+              gameState.changeError = 'Please type or speak how you would like to change the game!';
+              drawGamePage();
+              return;
+            }
+            gameState.changeError = '';
+            gameState.loadingMode = 'modify';
+            gameState.loadingError = '';
+            gameState.step = 'loading';
+            drawGamePage();
+          };
+        }
+      }
+
+      if (user) {
+        loadHeaderAndFooter('adventures');
+        drawGamePage();
+      }
+    </script>
+  </body>
+</html>

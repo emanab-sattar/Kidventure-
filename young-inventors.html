@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Young Inventors Lab | Kidventure</title>
+    <meta
+      name="description"
+      content="Build real-world inventions using everyday materials in the Kidventure AI Young Inventors Lab."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./adventures.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <!-- Main page wrapper with shared header, Young Inventors Lab area, and footer -->
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+      <header id="site-header"></header>
+
+      <!-- Main content box where JavaScript draws the building challenge and feedback steps -->
+      <main id="main-content" class="page-content">
+        <section id="young-inventors-root" class="adventure-page"></section>
+      </main>
+
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./adventures.js"></script>
+    <script>
+      var user = requireSignedInUser('creative-mission');
+      var root = document.getElementById('young-inventors-root');
+
+      var inventorState = {
+        challengeIndex: 0,
+        step: 'challenge',
+        loadingMode: 'evaluate',
+        cancelStep: 'submit',
+        image: null,
+        explanation: '',
+        submitError: '',
+        loadingError: '',
+        feedback: null,
+        replyText: '',
+        replyError: '',
+        hasReplied: false,
+        saved: false
+      };
+
+      // Takes the child back to the My Progress page
+      function goBackToProgress() {
+        window.location.href = './progress.html';
+      }
+
+      // Gets the currently selected building challenge
+      function getCurrentChallenge() {
+        return CREATIVE_CHALLENGES[inventorState.challengeIndex];
+      }
+
+      // Builds the top Back button, name tag, and peach Young Inventors banner
+      function makeBannerHtml() {
+        return (
+          '<div class="top-bar-row">' +
+            '<button type="button" data-go-back class="back-button back-button-peach">' +
+              drawSmallIcon('arrow-left', 'small-icon') +
+              '<span>Back to Adventures</span>' +
+            '</button>' +
+            '<div class="user-tag">' +
+              '<span>' + makeTextSafe(user.nickname) + '</span>' +
+              ' &middot; ' +
+              '<span>Ages ' + makeTextSafe(user.ageGroup) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="banner-card banner-peach">' +
+            '<div class="banner-grid">' +
+              '<div>' +
+                '<p class="small-label">Imagine &amp; Build</p>' +
+                '<h1 class="banner-title">AI Young Inventors Lab</h1>' +
+                '<p class="banner-desc">Build a real-world invention using everyday things around you, then show and explain how your design works!</p>' +
+              '</div>' +
+              '<div class="banner-art">' + buildActivityOwlSvg('creative-mission') + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      // Turns an array of sentences into HTML bullet items
+      function makeBulletItems(items) {
+        var html = '';
+        for (var i = 0; i < items.length; i++) {
+          html += '<li>&bull; ' + makeTextSafe(items[i]) + '</li>';
+        }
+        return html;
+      }
+
+      // Draws whichever step of Young Inventors Lab is currently open
+      function drawInventorsPage() {
+        if (!user || !root) return;
+        var challenge = getCurrentChallenge();
+        var bodyHtml = '';
+
+        if (inventorState.step === 'challenge') {
+          bodyHtml =
+            '<div class="panel-card">' +
+              '<div class="panel-header">' +
+                '<div>' +
+                  '<p class="small-label">Today\'s Challenge</p>' +
+                  '<h2 class="panel-title">' + makeTextSafe(challenge.title) + '</h2>' +
+                '</div>' +
+                '<button type="button" data-next-challenge class="back-button back-button-peach">' +
+                  drawSmallIcon('refresh-cw', 'small-icon') +
+                  '<span>Try a Different Challenge</span>' +
+                '</button>' +
+              '</div>' +
+              '<div class="detail-box detail-soft">' +
+                '<p class="small-label">The Story</p>' +
+                '<p class="detail-box-story">' + makeTextSafe(challenge.story) + '</p>' +
+              '</div>' +
+              '<div class="two-col-grid">' +
+                '<div class="detail-box detail-cream">' +
+                  '<h3 class="detail-box-title">Your Goal</h3>' +
+                  '<p class="detail-box-text">' + makeTextSafe(challenge.goal) + '</p>' +
+                  '<p class="detail-box-note">There is no single right answer: sketch, build, and test your own creative idea!</p>' +
+                '</div>' +
+                '<div class="detail-box detail-peach">' +
+                  '<h3 class="detail-box-title">Suggested Everyday Materials</h3>' +
+                  '<ul class="bullet-list">' + makeBulletItems(challenge.suggestedMaterials) + '</ul>' +
+                '</div>' +
+              '</div>' +
+              '<div class="safety-box">' +
+                drawSmallIcon('shield-alert', 'medium-icon') +
+                '<div>' +
+                  '<p class="safety-heading">Safety Reminder</p>' +
+                  '<p class="safety-text">' + makeTextSafe(challenge.safetyReminder) + '</p>' +
+                '</div>' +
+              '</div>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-go-back class="button button-white">' + drawSmallIcon('arrow-left', 'small-icon') + '<span>Back to Adventures</span></button>' +
+                '<div class="footer-actions">' +
+                  '<button type="button" id="preview-loading-btn" class="back-button back-button-peach">' + drawSmallIcon('eye', 'small-icon') + '<span>Preview Loading Screen</span></button>' +
+                  '<button type="button" id="start-building-btn" class="button button-peach button-large"><span>Start Building</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>';
+        } else if (inventorState.step === 'submit') {
+          var submitErrorHtml = '';
+          if (inventorState.submitError) {
+            submitErrorHtml = '<div role="alert" class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(inventorState.submitError) + '</span></div>';
+          }
+
+          bodyHtml =
+            '<form id="submit-invention-form" class="panel-card" novalidate>' +
+              '<div class="panel-header">' +
+                '<h2 class="panel-title">Show &amp; Explain Your Invention!</h2>' +
+                '<button type="button" data-back-to-challenge class="back-button back-button-peach">' +
+                  drawSmallIcon('arrow-left', 'small-icon') +
+                  '<span>View Challenge Again</span>' +
+                '</button>' +
+              '</div>' +
+              '<p class="panel-subtitle">When your invention is ready, share a picture and tell us how it works!</p>' +
+              submitErrorHtml +
+              '<div id="photo-picker-box"></div>' +
+              '<div class="field-group">' +
+                '<label for="explanation-textarea" class="field-label">Explain how your invention works (Text or Voice)</label>' +
+                '<textarea id="explanation-textarea" rows="3" placeholder="e.g., I taped two cereal boxes into a curved wall and put sponges underneath to catch water!" class="textarea-input">' + makeTextSafe(inventorState.explanation) + '</textarea>' +
+              '</div>' +
+              '<div id="submit-voice-box"></div>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-back-to-challenge class="button button-white">' + drawSmallIcon('arrow-left', 'small-icon') + '<span>Back to Challenge</span></button>' +
+                '<div class="footer-actions">' +
+                  '<button type="button" id="preview-loading-btn" class="back-button back-button-peach">' + drawSmallIcon('eye', 'small-icon') + '<span>Preview Loading Screen</span></button>' +
+                  '<button type="submit" class="button button-peach button-large"><span>Submit My Invention</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+                '</div>' +
+              '</div>' +
+            '</form>';
+        } else if (inventorState.step === 'loading') {
+          bodyHtml = '<div id="discovery-room-box"></div>';
+        } else if (inventorState.step === 'feedback' && inventorState.feedback) {
+          var feedback = inventorState.feedback;
+          var explainBannerHtml = '';
+          if (inventorState.explanation.trim()) {
+            explainBannerHtml = '<p class="note-banner">Your explanation: &ldquo;' + makeTextSafe(inventorState.explanation.trim()) + '&rdquo;</p>';
+          }
+
+          var replyErrorHtml = '';
+          if (inventorState.replyError) {
+            replyErrorHtml = '<div role="alert" class="error-box">' + drawSmallIcon('circle-alert', 'small-icon') + '<span>' + makeTextSafe(inventorState.replyError) + '</span></div>';
+          }
+
+          var feedbackHeading = 'Great Work Building in the Real World!';
+          if (inventorState.hasReplied) {
+            feedbackHeading = 'Awesome Update on Your Test!';
+          }
+
+          var saveButtonHtml = '<button type="button" id="complete-invention-btn" class="button button-yellow">' + drawSmallIcon('star', 'small-icon') + '<span>I Built This Offline!</span></button>';
+          if (inventorState.saved) {
+            saveButtonHtml = '<button type="button" data-go-back class="button button-mint">' + drawSmallIcon('circle-check', 'small-icon') + '<span>Saved! View My Progress</span></button>';
+          }
+
+          bodyHtml =
+            '<div class="panel-card">' +
+              '<div class="sample-banner">' + drawSmallIcon('sparkles', 'small-icon') + '<span>Sample Feedback Preview</span></div>' +
+              '<div>' +
+                '<p class="small-label">Friendly Inventor Mentor</p>' +
+                '<h2 class="banner-title">' + feedbackHeading + '</h2>' +
+                explainBannerHtml +
+              '</div>' +
+              '<div class="three-col-grid-cards">' +
+                '<div class="detail-box detail-blue">' +
+                  '<div class="detail-box-heading-row">' + drawSmallIcon('lightbulb', 'medium-icon') + '<h3 class="detail-box-title">Guiding Questions</h3></div>' +
+                  '<ul class="bullet-list">' + makeBulletItems(feedback.guidingQuestions) + '</ul>' +
+                '</div>' +
+                '<div class="detail-box detail-peach">' +
+                  '<h3 class="detail-box-title">Ideas to Try Next</h3>' +
+                  '<ul class="bullet-list">' + makeBulletItems(feedback.improvementSuggestions) + '</ul>' +
+                '</div>' +
+                '<div class="detail-box detail-mint">' +
+                  '<h3 class="detail-box-title">Follow-Up Challenge</h3>' +
+                  '<ul class="bullet-list">' + makeBulletItems(feedback.followUpChallenges) + '</ul>' +
+                '</div>' +
+              '</div>' +
+              '<form id="test-reply-form" class="detail-box detail-cream detail-box-list" novalidate>' +
+                '<h3 class="detail-box-title">Share What Happened When You Tested It! (Text or Voice)</h3>' +
+                replyErrorHtml +
+                '<textarea id="reply-textarea" rows="2" placeholder="e.g., I tilted the cardboard shield and the water balls rolled into the cup!" class="textarea-input">' + makeTextSafe(inventorState.replyText) + '</textarea>' +
+                '<div class="reply-actions-row">' +
+                  '<div id="reply-voice-box"></div>' +
+                  '<button type="submit" class="button button-peach"><span>Send Response</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+                '</div>' +
+              '</form>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-next-challenge class="button button-white">' + drawSmallIcon('refresh-cw', 'small-icon') + '<span>Try Another Challenge</span></button>' +
+                saveButtonHtml +
+              '</div>' +
+            '</div>';
+        }
+
+        root.innerHTML = makeBannerHtml() + bodyHtml;
+
+        var backButtons = root.querySelectorAll('[data-go-back]');
+        for (var b = 0; b < backButtons.length; b++) {
+          backButtons[b].onclick = goBackToProgress;
+        }
+
+        var nextChallengeButtons = root.querySelectorAll('[data-next-challenge]');
+        for (var n = 0; n < nextChallengeButtons.length; n++) {
+          nextChallengeButtons[n].onclick = function () {
+            inventorState.challengeIndex = (inventorState.challengeIndex + 1) % CREATIVE_CHALLENGES.length;
+            inventorState.image = null;
+            inventorState.explanation = '';
+            inventorState.feedback = null;
+            inventorState.replyText = '';
+            inventorState.hasReplied = false;
+            inventorState.submitError = '';
+            inventorState.replyError = '';
+            inventorState.loadingError = '';
+            inventorState.saved = false;
+            inventorState.step = 'challenge';
+            drawInventorsPage();
+          };
+        }
+
+        if (inventorState.step === 'challenge') {
+          document.getElementById('start-building-btn').onclick = function () {
+            inventorState.step = 'submit';
+            drawInventorsPage();
+          };
+          document.getElementById('preview-loading-btn').onclick = function () {
+            inventorState.submitError = '';
+            inventorState.loadingMode = 'evaluate';
+            inventorState.cancelStep = 'challenge';
+            inventorState.loadingError = '';
+            inventorState.step = 'loading';
+            drawInventorsPage();
+          };
+        } else if (inventorState.step === 'submit') {
+          var backChallengeButtons = root.querySelectorAll('[data-back-to-challenge]');
+          for (var c = 0; c < backChallengeButtons.length; c++) {
+            backChallengeButtons[c].onclick = function () {
+              inventorState.step = 'challenge';
+              drawInventorsPage();
+            };
+          }
+
+          var explanationTextarea = document.getElementById('explanation-textarea');
+          explanationTextarea.oninput = function () {
+            inventorState.explanation = explanationTextarea.value;
+            inventorState.submitError = '';
+          };
+
+          setupPhotoPicker(document.getElementById('photo-picker-box'), {
+            image: inventorState.image,
+            buttonAccentClass: 'button-peach',
+            uploadLabel: 'Upload Invention Photo',
+            sampleLabel: 'Use sample cardboard barrier picture',
+            onChange: function (chosenImage) {
+              inventorState.image = chosenImage;
+              inventorState.submitError = '';
+              var alertBox = root.querySelector('#submit-invention-form [role="alert"]');
+              if (alertBox && chosenImage) alertBox.classList.add('hidden');
+            }
+          });
+
+          setupVoiceInput(document.getElementById('submit-voice-box'), {
+            label: 'Record Voice Explanation',
+            onTranscript: function (spokenText) {
+              if (inventorState.explanation) {
+                inventorState.explanation = inventorState.explanation + ' ' + spokenText;
+              } else {
+                inventorState.explanation = spokenText;
+              }
+              inventorState.submitError = '';
+              explanationTextarea.value = inventorState.explanation;
+            }
+          });
+
+          document.getElementById('preview-loading-btn').onclick = function () {
+            inventorState.submitError = '';
+            inventorState.loadingMode = 'evaluate';
+            inventorState.cancelStep = 'submit';
+            inventorState.loadingError = '';
+            inventorState.step = 'loading';
+            drawInventorsPage();
+          };
+
+          document.getElementById('submit-invention-form').onsubmit = function (event) {
+            event.preventDefault();
+            if (!inventorState.image && !inventorState.explanation.trim()) {
+              inventorState.submitError = 'Please share a photo of what you built or explain your invention in words first!';
+              drawInventorsPage();
+              return;
+            }
+            inventorState.submitError = '';
+            inventorState.loadingMode = 'evaluate';
+            inventorState.cancelStep = 'submit';
+            inventorState.loadingError = '';
+            inventorState.step = 'loading';
+            drawInventorsPage();
+          };
+        } else if (inventorState.step === 'loading') {
+          var statusText = 'Looking at Your Clever Invention';
+          if (inventorState.loadingMode === 'reply') {
+            statusText = 'Preparing Follow-Up Thoughts';
+          }
+
+          showDiscoveryRoom(document.getElementById('discovery-room-box'), {
+            environment: 'workshop',
+            statusLabel: statusText,
+            resultButtonLabel: 'View Sample Feedback',
+            errorMessage: inventorState.loadingError,
+            onContinueToSample: function () {
+              var isReply = inventorState.loadingMode === 'reply';
+              inventorState.feedback = getInventionFeedback(getCurrentChallenge().id, isReply);
+              if (isReply) {
+                inventorState.hasReplied = true;
+                inventorState.replyText = '';
+              }
+              inventorState.step = 'feedback';
+              drawInventorsPage();
+            },
+            onCancelToInput: function () {
+              inventorState.loadingError = '';
+              inventorState.step = inventorState.cancelStep;
+              drawInventorsPage();
+            },
+            onRetryRequest: function () {
+              inventorState.loadingError = '';
+              drawInventorsPage();
+            }
+          });
+        } else if (inventorState.step === 'feedback') {
+          var replyTextarea = document.getElementById('reply-textarea');
+          replyTextarea.oninput = function () {
+            inventorState.replyText = replyTextarea.value;
+            inventorState.replyError = '';
+          };
+
+          setupVoiceInput(document.getElementById('reply-voice-box'), {
+            label: 'Speak Reply',
+            onTranscript: function (spokenText) {
+              if (inventorState.replyText) {
+                inventorState.replyText = inventorState.replyText + ' ' + spokenText;
+              } else {
+                inventorState.replyText = spokenText;
+              }
+              inventorState.replyError = '';
+              replyTextarea.value = inventorState.replyText;
+            }
+          });
+
+          document.getElementById('test-reply-form').onsubmit = function (event) {
+            event.preventDefault();
+            if (!inventorState.replyText.trim()) {
+              inventorState.replyError = 'Write or speak what happened when you tested your idea!';
+              drawInventorsPage();
+              return;
+            }
+            inventorState.replyError = '';
+            inventorState.loadingMode = 'reply';
+            inventorState.cancelStep = 'feedback';
+            inventorState.loadingError = '';
+            inventorState.step = 'loading';
+            drawInventorsPage();
+          };
+
+          var completeButton = document.getElementById('complete-invention-btn');
+          if (completeButton) {
+            completeButton.onclick = function () {
+              if (inventorState.saved) return;
+              saveNewAdventure({
+                id: 'creative-mission-' + Date.now(),
+                feature: 'creative-mission',
+                title: getCurrentChallenge().title,
+                domain: 'Create',
+                completedAt: 'Just now'
+              });
+              inventorState.saved = true;
+              drawInventorsPage();
+            };
+          }
+        }
+      }
+
+      if (user) {
+        loadHeaderAndFooter('adventures');
+        drawInventorsPage();
+      }
+    </script>
+  </body>
+</html>

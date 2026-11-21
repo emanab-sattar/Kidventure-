@@ -1,0 +1,436 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Career Quest | Kidventure</title>
+    <meta
+      name="description"
+      content="Explore interactive real-world roleplay missions as a Doctor, Engineer, Astronaut, or Scientist on Kidventure."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./adventures.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <!-- Main page wrapper with shared header, Career Quest area, and footer -->
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+      <header id="site-header"></header>
+
+      <!-- Main content box where JavaScript draws the career picker and story steps -->
+      <main id="main-content" class="page-content">
+        <section id="career-quest-root" class="adventure-page"></section>
+      </main>
+
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./adventures.js"></script>
+    <script>
+      var user = requireSignedInUser('career-explorer');
+      var root = document.getElementById('career-quest-root');
+
+      var questState = {
+        step: 'select',
+        profession: '',
+        selectError: '',
+        loadingError: '',
+        scenario: null,
+        chosenChoiceId: '',
+        targetScene: 1,
+        choiceError: '',
+        notes: '',
+        propImage: null,
+        saved: false
+      };
+
+      // Takes the child back to the My Progress page
+      function goBackToProgress() {
+        window.location.href = './progress.html';
+      }
+
+      // Builds the top Back button, name tag, and mint Career Quest banner
+      function makeBannerHtml() {
+        return (
+          '<div class="top-bar-row">' +
+            '<button type="button" data-go-back class="back-button back-button-mint">' +
+              drawSmallIcon('arrow-left', 'small-icon') +
+              '<span>Back to Adventures</span>' +
+            '</button>' +
+            '<div class="user-tag">' +
+              '<span>' + makeTextSafe(user.nickname) + '</span>' +
+              ' &middot; ' +
+              '<span>Ages ' + makeTextSafe(user.ageGroup) + '</span>' +
+            '</div>' +
+          '</div>' +
+          '<div class="banner-card banner-mint">' +
+            '<div class="banner-grid">' +
+              '<div>' +
+                '<p class="small-label">AI Career Quest</p>' +
+                '<h1 class="banner-title">What Do You Want to Be Today?</h1>' +
+                '<p class="banner-desc">Pick a career, make real-world problem-solving choices, and see how each decision shapes your mission!</p>' +
+              '</div>' +
+              '<div class="banner-art">' + buildActivityOwlSvg('career-explorer') + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }
+
+      // Draws whichever step of Career Quest is currently open
+      function drawCareerPage() {
+        if (!user || !root) return;
+        var bodyHtml = '';
+
+        if (questState.step === 'select') {
+          var selectErrorHtml = '';
+          if (questState.selectError) {
+            selectErrorHtml = '<div role="alert" class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(questState.selectError) + '</span></div>';
+          }
+
+          var defaultSelected = questState.profession ? '' : 'selected';
+          var optionsHtml = '<option value="" disabled ' + defaultSelected + '>Select a profession...</option>';
+          for (var i = 0; i < CAREER_LIST.length; i++) {
+            var professionName = CAREER_LIST[i];
+            var selectedText = questState.profession === professionName ? 'selected' : '';
+            optionsHtml += '<option value="' + makeTextSafe(professionName) + '" ' + selectedText + '>' + makeTextSafe(professionName) + '</option>';
+          }
+
+          bodyHtml =
+            '<form id="career-select-form" class="panel-card" novalidate>' +
+              '<div>' +
+                '<h2 class="panel-title">Choose Your Career Quest</h2>' +
+                '<p class="panel-subtitle">Pick a profession below to begin your interactive mission!</p>' +
+              '</div>' +
+              selectErrorHtml +
+              '<div class="field-group">' +
+                '<label for="career-select" class="field-label">Select a Profession</label>' +
+                '<select id="career-select" name="career_profession" class="select-input" required>' + optionsHtml + '</select>' +
+              '</div>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-go-back class="button button-white">' + drawSmallIcon('arrow-left', 'small-icon') + '<span>Back to Adventures</span></button>' +
+                '<div class="footer-actions">' +
+                  '<button type="button" id="preview-loading-btn" class="back-button back-button-mint">' + drawSmallIcon('eye', 'small-icon') + '<span>Preview Loading Screen</span></button>' +
+                  '<button type="submit" class="button button-mint button-large"><span>Start Mission</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+                '</div>' +
+              '</div>' +
+            '</form>';
+        } else if (questState.step === 'loading') {
+          bodyHtml = '<div id="discovery-room-box"></div>';
+        } else if (questState.step === 'mission' && questState.scenario && questState.profession) {
+          var scene = questState.scenario;
+          var sceneLabel = scene.profession + ' - Scene ' + scene.stepNumber + ' of 2';
+          var sceneBoxTitle = 'Scenario';
+          if (scene.stepNumber === 3) {
+            sceneLabel = scene.profession + ' - Mission Summary';
+            sceneBoxTitle = 'Mission Result';
+          }
+
+          var bottomHtml = '';
+          if (scene.stepNumber < 3) {
+            var choiceErrorHtml = '';
+            if (questState.choiceError) {
+              choiceErrorHtml = '<div role="alert" class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(questState.choiceError) + '</span></div>';
+            }
+
+            var choicesHtml = '';
+            for (var c = 0; c < scene.choices.length; c++) {
+              var choice = scene.choices[c];
+              var isSelected = questState.chosenChoiceId === choice.id;
+              var buttonClass = 'choice-button';
+              if (isSelected) {
+                buttonClass += ' selected';
+              }
+              choicesHtml +=
+                '<button type="button" data-career-choice="' + makeTextSafe(choice.id) + '" aria-pressed="' + isSelected + '" class="' + buttonClass + '">' +
+                  '<div>' +
+                    '<p class="choice-title">' + makeTextSafe(choice.label) + '</p>' +
+                    '<p class="choice-sub">' + makeTextSafe(choice.summary) + '</p>' +
+                  '</div>' +
+                  drawSmallIcon('arrow-right', 'small-icon') +
+                '</button>';
+            }
+
+            bottomHtml =
+              choiceErrorHtml +
+              '<div class="detail-box-list">' +
+                '<h3 class="detail-box-title">' + makeTextSafe(scene.question) + '</h3>' +
+                '<div class="choice-list">' + choicesHtml + '</div>' +
+              '</div>' +
+              '<div class="detail-box detail-cream detail-box-list">' +
+                '<div>' +
+                  '<h4 class="detail-box-title-small">Share Your Own Idea or Prop Photo (Optional)</h4>' +
+                  '<p class="detail-box-hint">Type or speak what you would do, or snap/upload a picture of a prop you are using!</p>' +
+                '</div>' +
+                '<div class="field-group">' +
+                  '<label for="mission-notes-textarea" class="field-label">Your mission notes (Text or Voice)</label>' +
+                  '<textarea id="mission-notes-textarea" rows="2" placeholder="e.g., I drew a stethoscope badge or planned my own rescue step!" class="textarea-input">' + makeTextSafe(questState.notes) + '</textarea>' +
+                '</div>' +
+                '<div id="mission-voice-box"></div>' +
+                '<div id="mission-photo-box"></div>' +
+              '</div>' +
+              '<div class="panel-footer">' +
+                '<button type="button" data-change-career class="button button-white"><span>Change Profession</span></button>' +
+                '<button type="button" id="continue-scene-btn" class="button button-mint button-large"><span>Continue</span>' + drawSmallIcon('arrow-right', 'small-icon') + '</button>' +
+              '</div>';
+          } else {
+            var noteBoxHtml = '';
+            if (questState.notes.trim()) {
+              noteBoxHtml = '<div class="note-banner">Your mission note: &ldquo;' + makeTextSafe(questState.notes.trim()) + '&rdquo;</div>';
+            }
+
+            var saveButtonHtml = '<button type="button" id="complete-mission-btn" class="button button-yellow">' + drawSmallIcon('star', 'small-icon') + '<span>Complete Mission</span></button>';
+            if (questState.saved) {
+              saveButtonHtml = '<button type="button" data-go-back class="button button-yellow">' + drawSmallIcon('circle-check', 'small-icon') + '<span>Saved! View My Progress</span></button>';
+            }
+
+            bottomHtml =
+              noteBoxHtml +
+              '<div class="panel-footer">' +
+                '<div class="footer-actions">' +
+                  '<button type="button" id="retry-choices-btn" class="button button-white">' + drawSmallIcon('refresh-cw', 'small-icon') + '<span>Try Different Choices</span></button>' +
+                  '<button type="button" data-change-career class="button button-mint"><span>Change Profession</span></button>' +
+                '</div>' +
+                saveButtonHtml +
+              '</div>';
+          }
+
+          bodyHtml =
+            '<div class="panel-card">' +
+              '<div class="sample-banner">' + drawSmallIcon('sparkles', 'small-icon') + '<span>Sample Career Story Preview</span></div>' +
+              '<div class="panel-header">' +
+                '<div>' +
+                  '<p class="small-label">' + makeTextSafe(sceneLabel) + '</p>' +
+                  '<h2 class="panel-title panel-title-row">' +
+                    drawSmallIcon('compass', 'large-icon') +
+                    '<span>' + makeTextSafe(scene.profession) + ' Mission</span>' +
+                  '</h2>' +
+                '</div>' +
+                '<button type="button" data-change-career class="back-button back-button-mint">' +
+                  drawSmallIcon('refresh-cw', 'small-icon') +
+                  '<span>Change Profession</span>' +
+                '</button>' +
+              '</div>' +
+              '<div class="detail-box detail-mint">' +
+                '<p class="small-label">' + sceneBoxTitle + '</p>' +
+                '<p class="detail-box-story">' + makeTextSafe(scene.scenario) + '</p>' +
+                '<p class="objective-line">Mission Objective: <span class="difficulty-value">' + makeTextSafe(scene.objective) + '</span></p>' +
+              '</div>' +
+              bottomHtml +
+            '</div>';
+        }
+
+        root.innerHTML = makeBannerHtml() + bodyHtml;
+
+        var backButtons = root.querySelectorAll('[data-go-back]');
+        for (var b = 0; b < backButtons.length; b++) {
+          backButtons[b].onclick = goBackToProgress;
+        }
+
+        if (questState.step === 'select') {
+          var careerSelect = document.getElementById('career-select');
+          careerSelect.onchange = function () {
+            questState.profession = careerSelect.value;
+            questState.selectError = '';
+          };
+
+          document.getElementById('preview-loading-btn').onclick = function () {
+            questState.selectError = '';
+            questState.targetScene = 1;
+            questState.chosenChoiceId = '';
+            questState.saved = false;
+            questState.loadingError = '';
+            questState.step = 'loading';
+            drawCareerPage();
+          };
+
+          document.getElementById('career-select-form').onsubmit = function (event) {
+            event.preventDefault();
+            if (!questState.profession) {
+              questState.selectError = 'Please pick a career from the list first!';
+              drawCareerPage();
+              return;
+            }
+            questState.selectError = '';
+            questState.targetScene = 1;
+            questState.chosenChoiceId = '';
+            questState.saved = false;
+            questState.loadingError = '';
+            questState.step = 'loading';
+            drawCareerPage();
+          };
+        } else if (questState.step === 'loading') {
+          var statusText = 'Preparing Your Career Mission';
+          var roleNote = '';
+          if (questState.profession) {
+            statusText = 'Preparing Your ' + questState.profession + ' Mission';
+            roleNote = 'Selected role: ' + questState.profession;
+          }
+          var resultButtonLabel = 'View Sample Scenario';
+          if (questState.targetScene === 3) {
+            resultButtonLabel = 'View Mission Outcome';
+          }
+
+          showDiscoveryRoom(document.getElementById('discovery-room-box'), {
+            environment: 'discovery',
+            statusLabel: statusText,
+            professionNote: roleNote,
+            resultButtonLabel: resultButtonLabel,
+            errorMessage: questState.loadingError,
+            onContinueToSample: function () {
+              var chosenProfession = questState.profession || 'Astronaut';
+              if (!questState.profession) questState.profession = chosenProfession;
+              if (questState.targetScene === 1) {
+                var sceneOne = getCareerStepOne(chosenProfession);
+                questState.scenario = sceneOne;
+                questState.chosenChoiceId = (sceneOne.choices[0] && sceneOne.choices[0].id) || '';
+              } else if (questState.targetScene === 2) {
+                var sceneTwo = getCareerNextStep(chosenProfession, questState.chosenChoiceId);
+                questState.scenario = sceneTwo;
+                questState.chosenChoiceId = (sceneTwo.choices[0] && sceneTwo.choices[0].id) || '';
+              } else {
+                questState.scenario = getCareerOutcome(chosenProfession, questState.chosenChoiceId);
+              }
+              questState.step = 'mission';
+              drawCareerPage();
+            },
+            onCancelToInput: function () {
+              questState.loadingError = '';
+              if (questState.scenario) {
+                questState.step = 'mission';
+              } else {
+                questState.step = 'select';
+              }
+              drawCareerPage();
+            },
+            onRetryRequest: function () {
+              questState.loadingError = '';
+              drawCareerPage();
+            }
+          });
+        } else if (questState.step === 'mission') {
+          var changeCareerButtons = root.querySelectorAll('[data-change-career]');
+          for (var p = 0; p < changeCareerButtons.length; p++) {
+            changeCareerButtons[p].onclick = function () {
+              questState.scenario = null;
+              questState.chosenChoiceId = '';
+              questState.choiceError = '';
+              questState.loadingError = '';
+              questState.notes = '';
+              questState.propImage = null;
+              questState.saved = false;
+              questState.step = 'select';
+              drawCareerPage();
+            };
+          }
+
+          var choiceButtons = root.querySelectorAll('[data-career-choice]');
+          for (var j = 0; j < choiceButtons.length; j++) {
+            choiceButtons[j].onclick = function () {
+              questState.chosenChoiceId = this.getAttribute('data-career-choice');
+              questState.choiceError = '';
+              drawCareerPage();
+            };
+          }
+
+          var notesTextarea = document.getElementById('mission-notes-textarea');
+          if (notesTextarea) {
+            notesTextarea.oninput = function () {
+              questState.notes = notesTextarea.value;
+            };
+          }
+
+          var voiceBox = document.getElementById('mission-voice-box');
+          if (voiceBox) {
+            setupVoiceInput(voiceBox, {
+              label: 'Record Voice Response',
+              onTranscript: function (spokenText) {
+                if (questState.notes) {
+                  questState.notes = questState.notes + ' ' + spokenText;
+                } else {
+                  questState.notes = spokenText;
+                }
+                if (notesTextarea) notesTextarea.value = questState.notes;
+              }
+            });
+          }
+
+          var photoBox = document.getElementById('mission-photo-box');
+          if (photoBox) {
+            setupPhotoPicker(photoBox, {
+              image: questState.propImage,
+              buttonAccentClass: 'button-mint',
+              uploadLabel: 'Upload Prop Photo',
+              sampleLabel: 'Use sample mission drawing',
+              onChange: function (chosenImage) {
+                questState.propImage = chosenImage;
+              }
+            });
+          }
+
+          var continueButton = document.getElementById('continue-scene-btn');
+          if (continueButton) {
+            continueButton.onclick = function () {
+              if (!questState.scenario || !questState.profession) return;
+              if (!questState.chosenChoiceId) {
+                questState.choiceError = 'Tap one of the choices above before continuing!';
+                drawCareerPage();
+                return;
+              }
+              questState.choiceError = '';
+              if (questState.scenario.stepNumber === 1) {
+                questState.targetScene = 2;
+              } else {
+                questState.targetScene = 3;
+              }
+              questState.loadingError = '';
+              questState.step = 'loading';
+              drawCareerPage();
+            };
+          }
+
+          var retryButton = document.getElementById('retry-choices-btn');
+          if (retryButton) {
+            retryButton.onclick = function () {
+              if (!questState.profession) return;
+              questState.targetScene = 1;
+              questState.chosenChoiceId = '';
+              questState.choiceError = '';
+              questState.saved = false;
+              questState.loadingError = '';
+              questState.step = 'loading';
+              drawCareerPage();
+            };
+          }
+
+          var completeButton = document.getElementById('complete-mission-btn');
+          if (completeButton) {
+            completeButton.onclick = function () {
+              if (!questState.profession || questState.saved) return;
+              saveNewAdventure({
+                id: 'career-explorer-' + Date.now(),
+                feature: 'career-explorer',
+                title: questState.profession + ' Career Quest',
+                domain: 'Think',
+                completedAt: 'Just now'
+              });
+              questState.saved = true;
+              drawCareerPage();
+            };
+          }
+        }
+      }
+
+      if (user) {
+        loadHeaderAndFooter('adventures');
+        drawCareerPage();
+      }
+    </script>
+  </body>
+</html>
