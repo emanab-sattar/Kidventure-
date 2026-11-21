@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Help &amp; Guidance | Kidventure</title>
+    <meta
+      name="description"
+      content="Answers to common questions about Kidventure, child privacy, offline activities, and everyday materials."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+
+      <!-- Top navigation bar filled by shared.js -->
+      <header id="site-header"></header>
+
+      <main id="main-content" class="page-content">
+        <section class="help-container">
+          <!-- Help intro box with Hoot the Owl and quick buttons -->
+          <div class="help-banner">
+            <div id="help-owl-box"></div>
+            <div>
+              <p class="small-label">Help &amp; Guidance</p>
+              <h1 class="section-title">How Kidventure Works for Kids &amp; Adults</h1>
+              <p class="section-subtitle">
+                Simple answers in plain language so every child aged 6 to 12 and every grown-up feels right at home.
+              </p>
+              <div class="help-buttons">
+                <button type="button" id="try-demo-btn" class="button button-yellow">Try an Adventure Demo</button>
+                <button type="button" id="open-privacy-btn" class="button button-white">Open Privacy Panel</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- List of common questions that open and close when clicked -->
+          <div id="faq-list-box" class="question-list"></div>
+        </section>
+      </main>
+
+      <!-- Bottom footer filled by shared.js -->
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script>
+      // Loads the top menu bar, bottom footer, and privacy panel for the help page
+      loadHeaderAndFooter('help');
+
+      // Places Hoot the Owl in the help banner
+      showOwl(document.getElementById('help-owl-box'), {
+        variant: 'medium',
+        interactive: true,
+        showBubbleByDefault: true,
+        initialMessage: "Need a hand? Tap any question below. I'm here to help!"
+      });
+
+      // Opens the Game Inventor demo or privacy panel when clicked
+      document.getElementById('try-demo-btn').onclick = function () {
+        openActivity('game-inventor');
+      };
+      document.getElementById('open-privacy-btn').onclick = function () {
+        openPrivacyPanel();
+      };
+
+      // Questions and answers shown on the help page
+      var helpQuestions = [
+        {
+          question: 'How does Kidventure help kids spend less time on screens?',
+          answer: 'Kidventure uses short prompts to spark ideas, then invites kids to stand up, grab everyday objects around the house, build things with their hands, and play offline!'
+        },
+        {
+          question: 'Are photos or voice recordings ever saved?',
+          answer: 'Never. Camera and voice features are strictly for spotting objects or listening to a game idea in the moment. Nothing is stored or saved.'
+        },
+        {
+          question: 'Who creates and manages the account?',
+          answer: 'A parent, guardian, or educator creates the account using only a playful nickname and an age group (6 to 8, 9 to 10, or 11 to 12). Adults can delete everything at any time.'
+        },
+        {
+          question: 'What if I do not have fancy art supplies?',
+          answer: 'You never need special kits! Paper cups, socks, cardboard boxes, spoons, pillows, and scrap paper are perfect for every Kidventure mission.'
+        }
+      ];
+
+      var openQuestionIndex = 0;
+
+      // Draws all question cards and opens or closes the answer when clicked
+      function drawQuestionsList() {
+        var box = document.getElementById('faq-list-box');
+        var html = '';
+        for (var i = 0; i < helpQuestions.length; i++) {
+          var isOpen = openQuestionIndex === i;
+          html +=
+            '<div class="question-card">' +
+              '<button type="button" class="question-button" data-index="' + i + '">' +
+                '<span>' + makeTextSafe(helpQuestions[i].question) + '</span>' +
+                '<span>' + (isOpen ? '-' : '+') + '</span>' +
+              '</button>' +
+              (isOpen ? '<div class="question-answer">' + makeTextSafe(helpQuestions[i].answer) + '</div>' : '') +
+            '</div>';
+        }
+        box.innerHTML = html;
+
+        var buttons = box.querySelectorAll('.question-button');
+        for (var j = 0; j < buttons.length; j++) {
+          buttons[j].onclick = function () {
+            var clickedIndex = parseInt(this.getAttribute('data-index'), 10);
+            openQuestionIndex = (openQuestionIndex === clickedIndex) ? -1 : clickedIndex;
+            drawQuestionsList();
+          };
+        }
+      }
+
+      drawQuestionsList();
+    </script>
+  </body>
+</html>

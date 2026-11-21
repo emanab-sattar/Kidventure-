@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kidventure | Big Adventures Start with Little Ideas</title>
+    <meta
+      name="description"
+      content="An AI-powered real-world adventure platform for children aged 6 to 12 that turns everyday items into creative, physical, cognitive, social, and emotional play."
+    />
+    <meta property="og:title" content="Kidventure | Big Adventures Start with Little Ideas" />
+    <meta
+      property="og:description"
+      content="An AI-powered real-world adventure platform for children aged 6 to 12 that turns everyday items into creative, physical, cognitive, social, and emotional play."
+    />
+    <meta property="og:type" content="website" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+
+      <!-- Top navigation bar filled by shared.js -->
+      <header id="site-header"></header>
+
+      <main id="main-content" class="page-content">
+        <!-- Welcome banner at the top of the home page with Hoot the Owl and start buttons -->
+        <section class="welcome-banner">
+          <div class="page-container">
+            <div class="welcome-grid">
+              <!-- Left side: welcome headline, description, and main buttons -->
+              <div>
+                <p class="welcome-tag">Ages 6 to 12 - Real-World AI Play Platform</p>
+                <h1 class="welcome-title">
+                  Big Adventures Start with <span class="highlight-word">Little Ideas!</span>
+                </h1>
+                <p class="welcome-text">
+                  Imagine, create, explore, and discover exciting adventures beyond your screen! Snap everyday objects, invent a game, build something amazing, or spend a day in a real job.
+                </p>
+                <div class="welcome-buttons">
+                  <a href="./register.html" class="button button-yellow button-large">
+                    <span>Start My Adventure</span>
+                  </a>
+                  <a href="#features" class="button button-white button-large">
+                    <span>Explore Activities</span>
+                  </a>
+                </div>
+                <p class="welcome-note">
+                  <span id="welcome-shield-icon"></span>
+                  <span>Adults create the account. No photos or voice recordings are saved.</span>
+                </p>
+              </div>
+
+              <!-- Right side: clickable Hoot the Owl mascot box -->
+              <div class="owl-card">
+                <div id="welcome-owl-box"></div>
+                <p class="owl-caption">Tap Hoot the Owl for a clue!</p>
+              </div>
+            </div>
+          </div>
+
+          <div class="banner-wave">
+            <img src="./images/banner-wave.svg" alt="" class="banner-wave-image" />
+          </div>
+        </section>
+
+        <!-- Three main activity cards (drawn by shared.js) -->
+        <section id="features" class="home-section">
+          <div class="page-container">
+            <div class="section-header">
+              <p class="small-label">Three Real-World Ways to Play</p>
+              <h2 class="section-title">Pick Your Next Adventure!</h2>
+              <p class="section-subtitle">
+                Every activity starts with things already around your home and gets you moving, building, and imagining offline.
+              </p>
+            </div>
+            <div id="activity-cards-box"></div>
+          </div>
+        </section>
+
+        <!-- How it works section showing the three steps: Snap, Create, Play -->
+        <section id="how" class="home-section">
+          <div class="page-container">
+            <div class="steps-panel">
+              <div class="section-header">
+                <h2 class="section-title">How It Works in Three Easy Steps</h2>
+                <p class="section-subtitle">Quick on screen, long on real-world play.</p>
+              </div>
+              <div class="three-col-grid">
+                <div class="step-card">
+                  <div class="step-number step-blue">1</div>
+                  <h3 class="step-title">Snap</h3>
+                  <p class="step-text">Show the camera or pick what you already have around your home.</p>
+                </div>
+                <div class="step-card">
+                  <div class="step-number step-pink">2</div>
+                  <h3 class="step-title">Create</h3>
+                  <p class="step-text">Our AI helps you invent a mission or game, and you change the rules!</p>
+                </div>
+                <div class="step-card">
+                  <div class="step-number step-green">3</div>
+                  <h3 class="step-title">Play</h3>
+                  <p class="step-text">Jump up, build it with your hands, and have fun away from the screen!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Five learning skills section where kids can tap badges to read tips from Hoot -->
+        <section class="home-section">
+          <div class="page-container">
+            <div class="section-header">
+              <p class="small-label">Five Ways Adventures Help You Grow</p>
+              <h2 class="section-title">Skills You Grow Every Time You Play</h2>
+              <p class="section-subtitle">Tap any badge below to see what Hoot says!</p>
+            </div>
+
+            <div id="skills-grid" class="skills-grid"></div>
+
+            <div class="skill-tip-bar">
+              <div id="skills-owl-box"></div>
+              <div>
+                <span id="skill-tip-title" class="title-font">Cognitive:</span>
+                <span id="skill-tip-body">Hoot says: Trying two different ways to stack cups builds your brain power!</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Parent and educator information card beside the privacy summary card -->
+        <section id="adults" class="home-section">
+          <div class="page-container">
+            <div class="adults-grid">
+              <!-- Left card: why adults stay in charge -->
+              <div class="adults-card">
+                <div>
+                  <p class="small-label">Parent &amp; Educator Control</p>
+                  <h2 class="section-title">Adults, you are in charge.</h2>
+                  <ul class="adults-list">
+                    <li>
+                      <span class="check-circle" id="check-icon-1"></span>
+                      <span>You create and manage the account.</span>
+                    </li>
+                    <li>
+                      <span class="check-circle" id="check-icon-2"></span>
+                      <span>We never save photos or voice recordings.</span>
+                    </li>
+                    <li>
+                      <span class="check-circle" id="check-icon-3"></span>
+                      <span>We only keep a nickname, an age group, and the activity history.</span>
+                    </li>
+                    <li>
+                      <span class="check-circle" id="check-icon-4"></span>
+                      <span>You can delete everything at any time.</span>
+                    </li>
+                  </ul>
+                </div>
+                <div class="adults-action">
+                  <a href="./register.html" class="button button-yellow">Create Adult Account</a>
+                </div>
+              </div>
+
+              <!-- Right card: short privacy rules and button to open the full privacy panel -->
+              <aside class="privacy-corner">
+                <div>
+                  <h3 class="privacy-corner-title">Privacy Corner</h3>
+                  <p class="privacy-corner-sub">Dedicated Child Privacy Space</p>
+                  <p class="privacy-corner-text">
+                    This section explains Kidventure's safety rules, including camera access, voice input, minimal account info, and parent controls.
+                  </p>
+                  <div class="privacy-note-box">
+                    <p class="privacy-note-heading">Privacy Promise</p>
+                    <p class="privacy-note-text">
+                      No email is required, no media is saved, and adults can reset or delete everything anytime.
+                    </p>
+                  </div>
+                </div>
+                <button type="button" id="open-privacy-corner-btn" class="button button-white button-wide privacy-corner-btn">
+                  Open Full Privacy Panel
+                </button>
+              </aside>
+            </div>
+          </div>
+        </section>
+
+        <!-- Bottom sign-up banner -->
+        <section class="home-section">
+          <div class="page-container">
+            <div class="signup-banner">
+              <div class="signup-banner-left">
+                <div id="signup-owl-box"></div>
+                <div>
+                  <h2 class="signup-banner-title">Ready for an adventure?</h2>
+                  <p class="signup-banner-text">
+                    Create a free family explorer profile in under a minute.
+                  </p>
+                </div>
+              </div>
+              <a href="./register.html" class="button button-white button-large">Sign up now</a>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom footer filled by shared.js -->
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script>
+      // Checks if the visitor opened a direct link to one of the 3 activities
+      var linkActivity = getFeatureFromAddress();
+      var hashActivity = window.location.hash.replace('#', '');
+      var chosenActivity = null;
+      if (ACTIVITY_NAMES.indexOf(linkActivity) !== -1) {
+        chosenActivity = linkActivity;
+      } else if (ACTIVITY_NAMES.indexOf(hashActivity) !== -1) {
+        chosenActivity = hashActivity;
+      }
+
+      if (chosenActivity) {
+        openActivity(chosenActivity);
+      } else {
+        // Loads the top bar, bottom footer, and privacy side panel
+        loadHeaderAndFooter('home');
+
+        // Adds small shield and checkmark icons on the home page
+        document.getElementById('welcome-shield-icon').innerHTML = drawSmallIcon('shield-check', 'small-icon');
+        document.getElementById('check-icon-1').innerHTML = drawSmallIcon('check', 'small-icon');
+        document.getElementById('check-icon-2').innerHTML = drawSmallIcon('check', 'small-icon');
+        document.getElementById('check-icon-3').innerHTML = drawSmallIcon('check', 'small-icon');
+        document.getElementById('check-icon-4').innerHTML = drawSmallIcon('check', 'small-icon');
+
+        // Places Hoot the Owl in the welcome box, skills bar, and bottom banner
+        showOwl(document.getElementById('welcome-owl-box'), {
+          variant: 'hero',
+          interactive: true,
+          showBubbleByDefault: true,
+          initialMessage: "Whooo's ready for an adventure?"
+        });
+        showOwl(document.getElementById('skills-owl-box'), { variant: 'mini', interactive: false });
+        showOwl(document.getElementById('signup-owl-box'), { variant: 'small', interactive: false });
+
+        // Draws the three activity cards
+        drawActivityCards(document.getElementById('activity-cards-box'));
+
+        // List of the 5 skills and what Hoot says for each one
+        var skillsList = [
+          {
+            id: 'cognitive',
+            title: 'Cognitive',
+            subtitle: 'Think and Solve',
+            description: 'Invent new game rules, test clever solutions, and spot patterns.',
+            owlTip: 'Hoot says: Trying two different ways to stack cups builds your brain power!',
+            colorClass: 'skill-blue'
+          },
+          {
+            id: 'creative',
+            title: 'Creative',
+            subtitle: 'Imagine and Create',
+            description: 'Turn paper, cardboard, and everyday stuff into original creations.',
+            owlTip: 'Hoot says: There is no single right answer in the AI Young Inventors Lab!',
+            colorClass: 'skill-pink'
+          },
+          {
+            id: 'physical',
+            title: 'Physical',
+            subtitle: 'Move and Explore',
+            description: 'Jump up, balance, toss, build forts, and play away from the screen.',
+            owlTip: 'Hoot says: Clear a safe space on the floor and stretch your wings!',
+            colorClass: 'skill-green'
+          },
+          {
+            id: 'social',
+            title: 'Social',
+            subtitle: 'Connect and Collaborate',
+            description: 'Team up with siblings, friends, or grown-ups to play together.',
+            owlTip: 'Hoot says: Ask someone nearby to try your invented rules with you!',
+            colorClass: 'skill-yellow'
+          },
+          {
+            id: 'emotional',
+            title: 'Emotional',
+            subtitle: 'Feel and Grow',
+            description: 'Practice bravery, patience, empathy, and pride in what you build.',
+            owlTip: 'Hoot says: Even when a cardboard tower wobbles, trying again makes you braver!',
+            colorClass: 'skill-purple'
+          }
+        ];
+
+        var selectedSkillId = 'cognitive';
+
+        // Draws the 5 skill badges and updates the tip box when a badge is clicked
+        function drawSkillBadges() {
+          var grid = document.getElementById('skills-grid');
+          var html = '';
+          for (var i = 0; i < skillsList.length; i++) {
+            var skill = skillsList[i];
+            var selectedClass = skill.id === selectedSkillId ? ' selected' : '';
+            html +=
+              '<button type="button" class="skill-badge ' + skill.colorClass + selectedClass + '" data-skill="' + skill.id + '">' +
+                getSkillIconSvg(skill.id) +
+                '<h3 class="skill-title">' + makeTextSafe(skill.title) + '</h3>' +
+                '<p class="skill-sub">' + makeTextSafe(skill.subtitle) + '</p>' +
+                '<p class="skill-text">' + makeTextSafe(skill.description) + '</p>' +
+              '</button>';
+          }
+          grid.innerHTML = html;
+
+          var badgeButtons = grid.querySelectorAll('[data-skill]');
+          for (var j = 0; j < badgeButtons.length; j++) {
+            badgeButtons[j].onclick = function () {
+              selectedSkillId = this.getAttribute('data-skill');
+              for (var k = 0; k < skillsList.length; k++) {
+                if (skillsList[k].id === selectedSkillId) {
+                  document.getElementById('skill-tip-title').textContent = skillsList[k].title + ':';
+                  document.getElementById('skill-tip-body').textContent = ' ' + skillsList[k].owlTip;
+                }
+              }
+              drawSkillBadges();
+            };
+          }
+        }
+
+        drawSkillBadges();
+
+        // Opens the privacy side panel when the adult card button is clicked
+        document.getElementById('open-privacy-corner-btn').onclick = function () {
+          openPrivacyPanel();
+        };
+      }
+    </script>
+  </body>
+</html>

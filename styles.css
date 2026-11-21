@@ -1,0 +1,1220 @@
+/* Basic page setup so spacing and text look the same everywhere */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Nunito", Arial, sans-serif;
+  background-color: #FFFCF7;
+  color: #514168;
+  line-height: 1.5;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+ul {
+  list-style: none;
+}
+
+/* Main page box that keeps the bottom footer at the end of the page */
+.page-wrapper {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #FFFCF7;
+  color: #514168;
+}
+
+.page-content {
+  flex: 1;
+}
+
+.page-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.help-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* Small, medium, and large icon sizes */
+.small-icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.medium-icon {
+  width: 20px;
+  height: 20px;
+  display: block;
+  flex-shrink: 0;
+}
+
+.large-icon {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex-shrink: 0;
+}
+
+/* Rounded title font, small labels, and yellow marker highlight */
+.title-font {
+  font-family: "Fredoka", "Nunito", sans-serif;
+}
+
+.small-label {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #625F70;
+}
+
+.highlight-word {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+
+.highlight-word::after {
+  content: "";
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: 4px;
+  height: 12px;
+  background-color: #FFE58F;
+  border-radius: 999px;
+  z-index: -1;
+}
+
+/* Hidden link for keyboard users to jump straight to the main page */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 12px;
+  background-color: #FFF2B3;
+  color: #514168;
+  font-weight: 700;
+  padding: 10px 18px;
+  border-radius: 999px;
+  z-index: 100;
+}
+
+.skip-link:focus {
+  left: 16px;
+}
+
+/* Top menu bar with logo, page links, and login buttons */
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background-color: rgba(255, 252, 247, 0.96);
+  border-bottom: 1px solid rgba(81, 65, 104, 0.14);
+}
+
+.header-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.brand-logo {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  color: #514168;
+  padding: 6px 12px;
+  border-radius: 999px;
+  white-space: nowrap;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.brand-logo:hover {
+  background-color: #FFF4DF;
+  transform: translateY(-1px);
+}
+
+.top-links {
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.top-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #625F70;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease, transform 0.18s ease;
+}
+
+.top-link:hover {
+  background-color: #EFE4FC;
+  color: #514168;
+  transform: translateY(-1px);
+}
+
+.top-link.active {
+  background-color: #FFE58F;
+  color: #514168;
+  box-shadow: 0 3px 0 rgba(81, 65, 104, 0.16);
+}
+
+.header-account-area {
+  display: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.profile-badge-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  min-height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(81, 65, 104, 0.22);
+  background-color: rgba(167, 232, 198, 0.7);
+  font-size: 14px;
+  font-weight: 800;
+  color: #514168;
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+
+.profile-badge-link:hover {
+  background-color: #9BE3BD;
+  transform: translateY(-1px);
+}
+
+.logout-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  min-height: 42px;
+  border-radius: 999px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 700;
+  color: #625F70;
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.logout-button:hover {
+  background-color: rgba(248, 185, 213, 0.6);
+  color: #514168;
+}
+
+.mobile-menu-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(81, 65, 104, 0.22);
+  background-color: #FFFFFF;
+  color: #514168;
+  cursor: pointer;
+}
+
+.mobile-menu-panel {
+  border-top: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFCF7;
+  padding: 16px 20px;
+}
+
+.mobile-menu-links {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.mobile-menu-auth {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(81, 65, 104, 0.14);
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* Rounded buttons used across all pages */
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 46px;
+  padding: 11px 22px;
+  border-radius: 999px;
+  border: 2px solid #514168;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 3px 0 rgba(81, 65, 104, 0.18);
+  transition: transform 0.16s ease, background-color 0.16s ease, box-shadow 0.16s ease;
+}
+
+.button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 14px -6px rgba(81, 65, 104, 0.25);
+}
+
+.button:active {
+  transform: translateY(1px);
+}
+
+.button-small {
+  min-height: 38px;
+  padding: 6px 16px;
+  font-size: 14px;
+}
+
+.button-large {
+  min-height: 52px;
+  padding: 13px 26px;
+  font-size: 17px;
+}
+
+.button-wide {
+  width: 100%;
+}
+
+.button-yellow {
+  background-color: #FFE58F;
+  color: #514168;
+}
+
+.button-yellow:hover {
+  background-color: #FFD966;
+}
+
+.button-white {
+  background-color: #FFFFFF;
+  color: #514168;
+}
+
+.button-white:hover {
+  background-color: #EFE4FC;
+}
+
+.button-sand {
+  background-color: #F6ECE1;
+  color: #514168;
+}
+
+.button-sand:hover {
+  background-color: #EBDCCB;
+}
+
+.button-peach {
+  background-color: #FFEBE0;
+  color: #514168;
+}
+
+.button-peach:hover {
+  background-color: #FFD8BC;
+}
+
+.button-mint {
+  background-color: #E2F8EC;
+  color: #514168;
+}
+
+.button-mint:hover {
+  background-color: #C8EBD7;
+}
+
+/* Welcome banner at the top of the home page */
+.welcome-banner {
+  position: relative;
+  overflow: hidden;
+  padding: 40px 0 80px;
+  background: linear-gradient(180deg, #EAF6FE 0%, #F7EFFC 55%, #FFFCF7 100%);
+}
+
+.welcome-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 36px;
+  align-items: center;
+}
+
+.welcome-tag {
+  font-size: 14px;
+  font-weight: 800;
+  color: #625F70;
+  margin-bottom: 12px;
+}
+
+.welcome-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 38px;
+  font-weight: 700;
+  line-height: 1.15;
+  color: #514168;
+  margin-bottom: 16px;
+}
+
+.welcome-text {
+  font-size: 18px;
+  font-weight: 600;
+  color: #625F70;
+  max-width: 560px;
+  margin-bottom: 22px;
+}
+
+.welcome-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.welcome-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #514168;
+}
+
+.owl-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0 auto;
+  padding: 28px 32px;
+  border-radius: 40px;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  background-color: rgba(255, 252, 247, 0.85);
+  box-shadow: 0 10px 26px -12px rgba(81, 65, 104, 0.14);
+}
+
+.owl-caption {
+  margin-top: 8px;
+  font-size: 12px;
+  font-weight: 800;
+  color: #625F70;
+  text-align: center;
+}
+
+.banner-wave {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  line-height: 0;
+  pointer-events: none;
+}
+
+.banner-wave-image {
+  width: 100%;
+  height: 46px;
+  display: block;
+}
+
+/* Home page spacing and centered section titles */
+.home-section {
+  padding: 52px 0;
+}
+
+.section-header {
+  max-width: 680px;
+  margin: 0 auto 36px;
+  text-align: center;
+}
+
+.section-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 32px;
+  font-weight: 700;
+  color: #514168;
+  margin-top: 6px;
+}
+
+.section-subtitle {
+  font-size: 16px;
+  font-weight: 600;
+  color: #625F70;
+  margin-top: 10px;
+}
+
+/* Three activity cards */
+.three-col-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.activity-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 24px;
+  border-radius: 30px;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.activity-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px -12px rgba(81, 65, 104, 0.2);
+}
+
+.card-sand { background-color: #EBDCCB; }
+.card-peach { background-color: #FFD8BC; }
+.card-mint { background-color: #C8EBD7; }
+
+.activity-picture-box {
+  height: 176px;
+  margin-bottom: 18px;
+  border-radius: 22px;
+  background-color: rgba(255, 255, 255, 0.92);
+  padding: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.activity-card-tag {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: #625F70;
+}
+
+.activity-card-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+  margin-top: 4px;
+}
+
+.activity-card-text {
+  font-size: 15px;
+  font-weight: 600;
+  margin-top: 8px;
+}
+
+.activity-card-footer {
+  margin-top: auto;
+  padding-top: 20px;
+}
+
+/* How it works three steps box */
+.steps-panel {
+  background-color: #FFF9EF;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  border-radius: 36px;
+  padding: 44px 28px;
+}
+
+.step-card {
+  background-color: #FFFFFF;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  border-radius: 26px;
+  padding: 26px;
+  text-align: center;
+  box-shadow: 0 8px 20px -10px rgba(81, 65, 104, 0.1);
+}
+
+.step-number {
+  width: 54px;
+  height: 54px;
+  margin: 0 auto 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(81, 65, 104, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.step-blue { background-color: #A9D9FA; }
+.step-pink { background-color: #F8B9D5; }
+.step-green { background-color: #A7E8C6; }
+
+.step-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 22px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+
+.step-text {
+  font-size: 15px;
+  font-weight: 600;
+  color: #625F70;
+}
+
+/* Five learning skills row */
+.skills-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+.skill-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 20px;
+  border-radius: 26px;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.skill-badge:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px -12px rgba(81, 65, 104, 0.2);
+}
+
+.skill-badge.selected {
+  border-color: #514168;
+  box-shadow: 0 10px 22px -10px rgba(81, 65, 104, 0.24);
+}
+
+.skill-blue { background-color: #E3F3FE; }
+.skill-pink { background-color: #FDE8F2; }
+.skill-green { background-color: #E2F8EC; }
+.skill-yellow { background-color: #FFF7D6; }
+.skill-purple { background-color: #EFE4FC; }
+
+.skill-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+  margin-top: 10px;
+}
+
+.skill-sub {
+  font-size: 14px;
+  font-weight: 800;
+  color: #514168;
+}
+
+.skill-text {
+  font-size: 13px;
+  font-weight: 600;
+  color: #625F70;
+  margin-top: 6px;
+}
+
+.skill-tip-bar {
+  max-width: 780px;
+  margin: 24px auto 0;
+  padding: 16px 22px;
+  border-radius: 22px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 10px 26px -12px rgba(81, 65, 104, 0.14);
+  font-size: 15px;
+  font-weight: 700;
+}
+
+/* Adults section and privacy summary box */
+.adults-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.adults-card {
+  background-color: #E3F3FE;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  border-radius: 34px;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.adults-list {
+  margin-top: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-weight: 700;
+}
+
+.adults-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.adults-action {
+  margin-top: 24px;
+}
+
+.check-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  background-color: #A7E8C6;
+  border: 1px solid rgba(81, 65, 104, 0.22);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.privacy-corner {
+  background-color: #FFF9EF;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  border-radius: 34px;
+  padding: 34px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.privacy-corner-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.privacy-corner-sub {
+  font-size: 13px;
+  font-weight: 700;
+  color: #625F70;
+}
+
+.privacy-corner-text {
+  margin-top: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #625F70;
+}
+
+.privacy-note-box {
+  margin-top: 18px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 2px dashed rgba(81, 65, 104, 0.22);
+  background-color: #FFFFFF;
+}
+
+.privacy-note-heading {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.privacy-note-text {
+  margin-top: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #625F70;
+}
+
+.privacy-corner-btn {
+  margin-top: 20px;
+}
+
+/* Bottom sign-up box on the home page */
+.signup-banner {
+  background-color: #FFD8BC;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  border-radius: 36px;
+  padding: 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  text-align: center;
+}
+
+.signup-banner-left {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+}
+
+.signup-banner-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 30px;
+  font-weight: 700;
+}
+
+.signup-banner-text {
+  margin-top: 4px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #625F70;
+}
+
+/* Hoot the Owl speech bubble, blinking eyes, and bounce effect */
+.owl-box {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.owl-bubble {
+  margin-bottom: 12px;
+  max-width: 280px;
+  padding: 12px 16px;
+  border-radius: 18px;
+  border: 2px solid rgba(81, 65, 104, 0.22);
+  background-color: #FFFFFF;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 8px 20px -6px rgba(81, 65, 104, 0.16);
+}
+
+.owl-button {
+  border: none;
+  background: transparent;
+  padding: 4px;
+  cursor: pointer;
+  border-radius: 999px;
+}
+
+.owl-size-hero { width: 240px; height: 240px; }
+.owl-size-medium { width: 170px; height: 170px; }
+.owl-size-small { width: 96px; height: 96px; }
+.owl-size-mini { width: 42px; height: 42px; }
+
+.owl-picture,
+.activity-owl-picture {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: contain;
+}
+
+.skill-picture {
+  width: 56px;
+  height: 56px;
+  display: block;
+}
+
+@keyframes owl-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+.owl-bouncing {
+  animation: owl-bounce 0.45s ease;
+}
+
+/* Help page banner and question cards */
+.help-banner {
+  background-color: rgba(243, 235, 252, 0.75);
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  border-radius: 34px;
+  padding: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 24px;
+  text-align: center;
+  margin-top: 36px;
+}
+
+.help-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.question-list {
+  margin-top: 28px;
+  margin-bottom: 48px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.question-card {
+  border-radius: 22px;
+  border: 2px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFFFF;
+  overflow: hidden;
+}
+
+.question-button {
+  width: 100%;
+  min-height: 60px;
+  padding: 16px 22px;
+  border: none;
+  background-color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  text-align: left;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.question-button:hover {
+  background-color: #FFF9EF;
+}
+
+.question-answer {
+  border-top: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFCF7;
+  padding: 16px 22px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #625F70;
+}
+
+/* Slide-out privacy panel on the right side of the screen */
+.privacy-side-button {
+  position: fixed;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 16px 0 0 16px;
+  border: 2px solid rgba(81, 65, 104, 0.22);
+  border-right: none;
+  background-color: #E3F3FE;
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 20px -6px rgba(81, 65, 104, 0.2);
+}
+
+.privacy-side-button:hover {
+  background-color: #A9D9FA;
+}
+
+.privacy-background {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background-color: rgba(81, 65, 104, 0.25);
+}
+
+.privacy-panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 420px;
+  z-index: 50;
+  background-color: #FFFCF7;
+  border-left: 2px solid rgba(81, 65, 104, 0.14);
+  box-shadow: -10px 0 30px rgba(81, 65, 104, 0.2);
+  display: flex;
+  flex-direction: column;
+}
+
+.privacy-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 22px;
+  background-color: #E3F3FE;
+  border-bottom: 1px solid rgba(81, 65, 104, 0.14);
+}
+
+.privacy-panel-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.privacy-panel-subtitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #625F70;
+}
+
+.close-circle-button {
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFFFF;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.privacy-panel-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.privacy-promise-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: rgba(239, 228, 252, 0.75);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.privacy-info-card {
+  padding: 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFFFF;
+}
+
+.privacy-info-card h3 {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.privacy-info-card p {
+  font-size: 14px;
+  color: #625F70;
+}
+
+.privacy-panel-footer {
+  padding: 16px 22px;
+  background-color: #FFF9EF;
+  border-top: 1px solid rgba(81, 65, 104, 0.14);
+}
+
+/* Bottom footer shown on every page */
+.site-footer {
+  margin-top: 32px;
+  border-top: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: rgba(239, 228, 252, 0.65);
+  padding: 40px 20px;
+}
+
+.footer-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+
+.footer-brand-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-brand-name {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.footer-text {
+  margin-top: 10px;
+  max-width: 280px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #625F70;
+}
+
+.footer-heading {
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #625F70;
+  margin-bottom: 12px;
+}
+
+.footer-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.footer-link {
+  background: transparent;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  cursor: pointer;
+}
+
+.footer-contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.footer-contact-link:hover {
+  text-decoration: underline;
+}
+
+.footer-social-links {
+  display: flex;
+  gap: 10px;
+}
+
+.social-button {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 1.5px solid rgba(81, 65, 104, 0.22);
+  background-color: #FFFCF7;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.social-button:hover {
+  background-color: #FFE58F;
+  transform: translateY(-2px);
+}
+
+.footer-bottom {
+  margin-top: 28px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(81, 65, 104, 0.14);
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #625F70;
+}
+
+/* Layout changes for wider tablet and computer screens */
+@media (min-width: 640px) {
+  .skills-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .footer-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 768px) {
+  .top-links {
+    display: flex;
+  }
+  .header-account-area {
+    display: flex;
+  }
+  .mobile-menu-button {
+    display: none;
+  }
+  .three-col-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .signup-banner {
+    flex-direction: row;
+    text-align: left;
+  }
+  .signup-banner-left {
+    flex-direction: row;
+  }
+  .help-banner {
+    flex-direction: row;
+    text-align: left;
+  }
+}
+
+@media (min-width: 1024px) {
+  .welcome-grid {
+    grid-template-columns: 7fr 5fr;
+  }
+  .welcome-title {
+    font-size: 56px;
+  }
+  .owl-size-hero {
+    width: 300px;
+    height: 300px;
+  }
+  .skills-grid {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .adults-grid {
+    grid-template-columns: 7fr 5fr;
+  }
+  .footer-grid {
+    grid-template-columns: 1.4fr 1fr 1fr 1fr 1fr;
+  }
+}
