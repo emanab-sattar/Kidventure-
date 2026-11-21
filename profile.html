@@ -1,0 +1,607 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Profile | Kidventure</title>
+    <meta
+      name="description"
+      content="View and manage your Kidventure parent or educator account settings with adult password protection."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./auth.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+
+      <!-- Top navigation bar -->
+      <header id="site-header"></header>
+
+      <main id="main-content" class="page-content">
+        <!-- Main profile sections drawn by the script below -->
+        <section id="profile-root" class="wide-page"></section>
+      </main>
+
+      <!-- Bottom footer -->
+      <footer id="site-footer"></footer>
+    </div>
+
+    <!-- Popup box used for password check before saving or deleting the account -->
+    <div id="profile-modal-root"></div>
+
+    <script src="./shared.js"></script>
+    <script src="./auth.js"></script>
+    <script>
+      // Sends the visitor to login if they are not signed in yet
+      var user = getCurrentUser();
+      if (!user) {
+        window.location.href = './login.html';
+      } else {
+        loadHeaderAndFooter('profile');
+
+        var draftNickname = user.nickname || '';
+        var draftAge = user.ageGroup || '6-8';
+        var draftAvatar = user.avatar || 'owl';
+        var infoErrorMessage = '';
+        var infoSuccessMessage = '';
+
+        var previousPasswordValue = '';
+        var newPasswordValue = '';
+        var confirmNewPasswordValue = '';
+        var showPreviousPassword = false;
+        var showNewPassword = false;
+        var showConfirmPassword = false;
+        var passwordRulesOpen = false;
+        var passwordErrorMessage = '';
+        var passwordSuccessMessage = '';
+
+        // Can be '', 'save-password', 'delete-confirm', or 'delete-password'
+        var popupMode = '';
+        var popupPassword = '';
+        var popupShowPassword = false;
+        var popupError = '';
+
+        // Turns stored age code like "6-8" into readable text
+        function formatAgeText(ageCode) {
+          if (ageCode === '6-12') return 'Mixed ages (6 to 12)';
+          return 'Ages ' + String(ageCode || '').replace('-', ' to ');
+        }
+
+        // Checks if the typed password matches the saved account password
+        function matchesCurrentPassword(typedPassword) {
+          var cleanPassword = String(typedPassword || '');
+          if (!cleanPassword) return false;
+          var savedAccount = findProfileByUsername(user.username);
+          var realPassword = user.password || '';
+          if (!realPassword && savedAccount && savedAccount.password) {
+            realPassword = savedAccount.password;
+          }
+          if (realPassword) {
+            return cleanPassword === realPassword;
+          }
+          return cleanPassword.length >= 1;
+        }
+
+        // Closes the popup box
+        function closePopupModal() {
+          popupMode = '';
+          popupPassword = '';
+          popupShowPassword = false;
+          popupError = '';
+          drawPopupModal();
+        }
+
+        // Draws the password check popup for saving changes or deleting the account
+        function drawPopupModal() {
+          var modalMount = document.getElementById('profile-modal-root');
+          if (!popupMode) {
+            modalMount.innerHTML = '';
+            return;
+          }
+
+          var isDeleteStepOne = popupMode === 'delete-confirm';
+          var isDeleteStepTwo = popupMode === 'delete-password';
+
+          var popupTitle = 'Enter Password to Save Changes';
+          var popupSubtitle = 'Please enter your account password so children cannot change these adult settings.';
+          if (isDeleteStepOne) {
+            popupTitle = 'Delete Your Account?';
+            popupSubtitle = 'Do you want to delete your Kidventure account? This will permanently remove your profile and adventure trail from this device.';
+          } else if (isDeleteStepTwo) {
+            popupTitle = 'Confirm Account Deletion';
+            popupSubtitle = 'Please enter your account password to permanently delete this account.';
+          }
+
+          var bodyHtml = '';
+          if (isDeleteStepOne) {
+            bodyHtml =
+              '<div class="popup-buttons">' +
+                '<button type="button" id="modal-cancel-btn" class="button button-white">No, Keep Account</button>' +
+                '<button type="button" id="modal-delete-yes-btn" class="delete-button">Yes, Delete Account</button>' +
+              '</div>';
+          } else {
+            var popupErrorHtml = '';
+            if (popupError) {
+              popupErrorHtml =
+                '<div class="error-box">' +
+                  drawSmallIcon('circle-alert', 'medium-icon') +
+                  '<span>' + makeTextSafe(popupError) + '</span>' +
+                '</div>';
+            }
+
+            var inputType = popupShowPassword ? 'text' : 'password';
+            var eyeIconName = popupShowPassword ? 'eye-off' : 'eye';
+            var submitButtonHtml = '<button type="submit" class="button button-yellow">Verify &amp; Save Changes</button>';
+            if (isDeleteStepTwo) {
+              submitButtonHtml = '<button type="submit" class="delete-button">Confirm &amp; Delete Account</button>';
+            }
+
+            bodyHtml =
+              '<form id="modal-password-form" class="form-fields popup-form" novalidate>' +
+                popupErrorHtml +
+                '<div class="field-group">' +
+                  '<label for="modal-password-input" class="field-label">Account Password</label>' +
+                  '<div class="password-box">' +
+                    '<input id="modal-password-input" type="' + inputType + '" value="' + makeTextSafe(popupPassword) + '" placeholder="Enter your password" class="text-input" required />' +
+                    '<button type="button" id="modal-password-eye" class="eye-button" aria-label="Show password">' +
+                      drawSmallIcon(eyeIconName, 'small-icon') +
+                    '</button>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="popup-buttons">' +
+                  '<button type="button" id="modal-cancel-btn" class="button button-white">Cancel</button>' +
+                  submitButtonHtml +
+                '</div>' +
+              '</form>';
+          }
+
+          modalMount.innerHTML =
+            '<div id="modal-backdrop" class="popup-background"></div>' +
+            '<div class="popup-wrapper">' +
+              '<div class="popup-card">' +
+                '<div class="popup-header">' +
+                  '<h2 class="popup-title">' + makeTextSafe(popupTitle) + '</h2>' +
+                  '<button type="button" id="modal-close-btn" class="close-circle-button" aria-label="Close">' +
+                    drawSmallIcon('x', 'small-icon') +
+                  '</button>' +
+                '</div>' +
+                '<p class="panel-subtext">' + makeTextSafe(popupSubtitle) + '</p>' +
+                bodyHtml +
+              '</div>' +
+            '</div>';
+
+          document.getElementById('modal-backdrop').onclick = closePopupModal;
+          document.getElementById('modal-close-btn').onclick = closePopupModal;
+          var cancelButton = document.getElementById('modal-cancel-btn');
+          if (cancelButton) cancelButton.onclick = closePopupModal;
+
+          var confirmDeleteButton = document.getElementById('modal-delete-yes-btn');
+          if (confirmDeleteButton) {
+            confirmDeleteButton.onclick = function () {
+              popupMode = 'delete-password';
+              popupPassword = '';
+              popupShowPassword = false;
+              popupError = '';
+              drawPopupModal();
+            };
+          }
+
+          var modalPasswordInput = document.getElementById('modal-password-input');
+          if (modalPasswordInput) {
+            modalPasswordInput.focus();
+            modalPasswordInput.oninput = function () {
+              popupPassword = this.value;
+              popupError = '';
+            };
+          }
+
+          var modalEyeButton = document.getElementById('modal-password-eye');
+          if (modalEyeButton) {
+            modalEyeButton.onclick = function () {
+              popupShowPassword = !popupShowPassword;
+              drawPopupModal();
+            };
+          }
+
+          var modalForm = document.getElementById('modal-password-form');
+          if (modalForm) {
+            modalForm.onsubmit = function (event) {
+              event.preventDefault();
+              if (!matchesCurrentPassword(popupPassword)) {
+                if (isDeleteStepTwo) {
+                  popupError = 'Incorrect password. Your account was not deleted.';
+                } else {
+                  popupError = 'Incorrect password. Your changes were not saved.';
+                }
+                drawPopupModal();
+                return;
+              }
+
+              if (popupMode === 'save-password') {
+                if (user.accountType === 'parent') {
+                  user.nickname = draftNickname.trim();
+                  user.ageGroup = draftAge;
+                  user.avatar = draftAvatar;
+                } else {
+                  user.ageGroup = draftAge;
+                }
+                saveFullAccount(user);
+                drawHeader();
+                infoSuccessMessage = 'Your account changes have been saved!';
+                closePopupModal();
+                drawProfilePage();
+              } else if (isDeleteStepTwo) {
+                deleteProfileByUsername(user.username);
+                window.location.href = './index.html';
+              }
+            };
+          }
+        }
+
+        // Draws all sections of the profile page (summary, edit info, update password, delete account)
+        function drawProfilePage() {
+          user = getCurrentUser();
+          if (!user) {
+            window.location.href = './login.html';
+            return;
+          }
+
+          var isParent = user.accountType === 'parent';
+          var roleText = isParent ? 'Parent / Guardian Account' : 'Educator Account';
+
+          var rightSummaryHtml = '';
+          if (isParent) {
+            rightSummaryHtml =
+              '<div class="summary-avatar-card">' +
+                '<div id="summary-avatar-box"></div>' +
+                '<span class="summary-avatar-name">' + makeTextSafe(user.nickname) + '</span>' +
+                '<span class="summary-avatar-age">' + makeTextSafe(formatAgeText(user.ageGroup)) + '</span>' +
+              '</div>';
+          } else {
+            rightSummaryHtml =
+              '<div class="summary-avatar-card">' +
+                drawSmallIcon('user-check', 'large-icon') +
+                '<span class="summary-avatar-name">' + makeTextSafe(user.username) + '</span>' +
+                '<span class="summary-avatar-age">Classroom: ' + makeTextSafe(formatAgeText(user.ageGroup)) + '</span>' +
+              '</div>';
+          }
+
+          var editFieldsHtml = '';
+          if (isParent) {
+            var avatarPickerHtml = '';
+            for (var i = 0; i < AVATAR_LIST.length; i++) {
+              var avatarItem = AVATAR_LIST[i];
+              var isPicked = draftAvatar === avatarItem.id;
+              var cardClass = 'avatar-card ' + avatarItem.bgClass;
+              var checkHtml = '';
+              if (isPicked) {
+                cardClass += ' selected';
+                checkHtml = '<span class="avatar-check">' + drawSmallIcon('check', 'small-icon') + '</span>';
+              }
+              avatarPickerHtml +=
+                '<button type="button" class="' + cardClass + '" data-pick-avatar="' + avatarItem.id + '">' +
+                  checkHtml +
+                  buildAvatarSvg(avatarItem.id, 46, false) +
+                  '<span class="avatar-name">' + makeTextSafe(avatarItem.label) + '</span>' +
+                '</button>';
+            }
+
+            editFieldsHtml =
+              '<div class="form-fields">' +
+                '<div class="two-col-grid">' +
+                  '<div class="field-group">' +
+                    '<label for="nickname-input" class="field-label">Child\'s Adventure Nickname</label>' +
+                    '<input id="nickname-input" type="text" maxlength="20" value="' + makeTextSafe(draftNickname) + '" class="text-input" required />' +
+                  '</div>' +
+                  '<div class="field-group">' +
+                    '<label for="age-group-select" class="field-label">Child\'s Age Group (6 to 12)</label>' +
+                    '<select id="age-group-select" class="select-input" required>' +
+                      '<option value="6-8" ' + (draftAge === '6-8' ? 'selected' : '') + '>Ages 6 to 8</option>' +
+                      '<option value="9-10" ' + (draftAge === '9-10' ? 'selected' : '') + '>Ages 9 to 10</option>' +
+                      '<option value="11-12" ' + (draftAge === '11-12' ? 'selected' : '') + '>Ages 11 to 12</option>' +
+                    '</select>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="field-group">' +
+                  '<span class="field-label">Animal Avatar</span>' +
+                  '<div class="avatar-grid-six">' + avatarPickerHtml + '</div>' +
+                '</div>' +
+              '</div>';
+          } else {
+            editFieldsHtml =
+              '<div class="field-group narrow-field">' +
+                '<label for="age-group-select" class="field-label">Classroom Age Group</label>' +
+                '<select id="age-group-select" class="select-input" required>' +
+                  '<option value="6-8" ' + (draftAge === '6-8' ? 'selected' : '') + '>Ages 6 to 8</option>' +
+                  '<option value="9-10" ' + (draftAge === '9-10' ? 'selected' : '') + '>Ages 9 to 10</option>' +
+                  '<option value="11-12" ' + (draftAge === '11-12' ? 'selected' : '') + '>Ages 11 to 12</option>' +
+                  '<option value="6-12" ' + (draftAge === '6-12' ? 'selected' : '') + '>Mixed ages (6 to 12)</option>' +
+                '</select>' +
+                '<p class="field-hint">Educator accounts only update the classroom age group here.</p>' +
+              '</div>';
+          }
+
+          var infoSubtitle = 'Update your classroom age group anytime. Confirming requires your password.';
+          if (isParent) {
+            infoSubtitle = 'Update your child nickname, age group, or avatar. Confirming requires your password.';
+          }
+
+          var infoSuccessBanner = '';
+          if (infoSuccessMessage) {
+            infoSuccessBanner = '<div class="success-box">' + drawSmallIcon('circle-check', 'medium-icon') + '<span>' + makeTextSafe(infoSuccessMessage) + '</span></div>';
+          }
+
+          var infoErrorBanner = '';
+          if (infoErrorMessage) {
+            infoErrorBanner = '<div class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(infoErrorMessage) + '</span></div>';
+          }
+
+          var passwordSuccessBanner = '';
+          if (passwordSuccessMessage) {
+            passwordSuccessBanner = '<div class="success-box">' + drawSmallIcon('circle-check', 'medium-icon') + '<span>' + makeTextSafe(passwordSuccessMessage) + '</span></div>';
+          }
+
+          var passwordErrorBanner = '';
+          if (passwordErrorMessage) {
+            passwordErrorBanner = '<div class="error-box">' + drawSmallIcon('circle-alert', 'medium-icon') + '<span>' + makeTextSafe(passwordErrorMessage) + '</span></div>';
+          }
+
+          var prevInputType = showPreviousPassword ? 'text' : 'password';
+          var prevEyeName = showPreviousPassword ? 'eye-off' : 'eye';
+          var newInputType = showNewPassword ? 'text' : 'password';
+          var newEyeName = showNewPassword ? 'eye-off' : 'eye';
+          var confirmInputType = showConfirmPassword ? 'text' : 'password';
+          var confirmEyeName = showConfirmPassword ? 'eye-off' : 'eye';
+          var rulesBoxClass = passwordRulesOpen ? 'password-rules-box' : 'password-rules-box hidden';
+
+          var nicknameLineHtml = '';
+          if (isParent) {
+            nicknameLineHtml = '<p>Child Nickname: <span class="account-detail-value">' + makeTextSafe(user.nickname) + '</span></p>';
+          }
+
+          document.getElementById('profile-root').innerHTML =
+            '<div class="top-bar-row">' +
+              '<a href="./progress.html" class="back-button">Back to My Progress</a>' +
+              '<a href="./index.html" class="back-button home-top-button">Back to Home</a>' +
+            '</div>' +
+
+            '<!-- Account overview box showing username, nickname, age group, and avatar -->' +
+            '<div class="top-banner-sky">' +
+              '<div>' +
+                '<p class="small-label">' + makeTextSafe(roleText) + '</p>' +
+                '<h1 class="banner-title">Account Profile</h1>' +
+                '<div class="account-details-list">' +
+                  '<p>Username: <span class="account-detail-value">' + makeTextSafe(user.username) + '</span></p>' +
+                  nicknameLineHtml +
+                  '<p>Age Group: <span class="account-detail-value">' + makeTextSafe(formatAgeText(user.ageGroup)) + '</span></p>' +
+                '</div>' +
+              '</div>' +
+              rightSummaryHtml +
+            '</div>' +
+
+            infoSuccessBanner +
+
+            '<!-- Form to edit nickname, age group, and avatar -->' +
+            '<form id="edit-profile-form" class="panel-card" novalidate>' +
+              '<div class="panel-header">' +
+                '<div>' +
+                  '<h2 class="panel-heading">Change Account Information</h2>' +
+                  '<p class="panel-subtext">' + makeTextSafe(infoSubtitle) + '</p>' +
+                '</div>' +
+                '<span class="lock-tag">' + drawSmallIcon('lock', 'small-icon') + '<span>Password Protected</span></span>' +
+              '</div>' +
+              infoErrorBanner +
+              editFieldsHtml +
+              '<div class="panel-footer">' +
+                '<button type="submit" class="button button-yellow">Confirm Changes</button>' +
+                '<button type="button" id="reset-changes-btn" class="button button-white">Reset</button>' +
+              '</div>' +
+            '</form>' +
+
+            '<!-- Form to update password (requires previous password) -->' +
+            '<form id="update-password-form" class="panel-card" novalidate>' +
+              '<div class="panel-header">' +
+                '<div>' +
+                  '<h2 class="panel-heading">Update Password</h2>' +
+                  '<p class="panel-subtext">Enter your previous password first, then choose a new password.</p>' +
+                '</div>' +
+                '<span class="lock-tag">' + drawSmallIcon('lock', 'small-icon') + '<span>Previous Password Required</span></span>' +
+              '</div>' +
+              passwordSuccessBanner +
+              passwordErrorBanner +
+              '<div class="form-fields">' +
+                '<div class="field-group narrow-field">' +
+                  '<label for="previous-password-input" class="field-label">Previous Password</label>' +
+                  '<div class="password-box">' +
+                    '<input id="previous-password-input" type="' + prevInputType + '" value="' + makeTextSafe(previousPasswordValue) + '" placeholder="Enter your previous password" class="text-input" required />' +
+                    '<button type="button" id="show-previous-btn" class="eye-button" aria-label="Show previous password">' + drawSmallIcon(prevEyeName, 'small-icon') + '</button>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="two-col-grid">' +
+                  '<div class="field-group">' +
+                    '<label for="new-password-input" class="field-label">New Password</label>' +
+                    '<div class="password-box">' +
+                      '<input id="new-password-input" type="' + newInputType + '" value="' + makeTextSafe(newPasswordValue) + '" placeholder="Enter new password" class="text-input" required />' +
+                      '<button type="button" id="show-new-btn" class="eye-button" aria-label="Show new password">' + drawSmallIcon(newEyeName, 'small-icon') + '</button>' +
+                    '</div>' +
+                    '<div><button type="button" id="password-rules-btn" class="password-help-button">' + drawSmallIcon('circle-question-mark', 'small-icon') + '<span>Password rules</span></button></div>' +
+                  '</div>' +
+                  '<div class="field-group">' +
+                    '<label for="confirm-new-input" class="field-label">Confirm New Password</label>' +
+                    '<div class="password-box">' +
+                      '<input id="confirm-new-input" type="' + confirmInputType + '" value="' + makeTextSafe(confirmNewPasswordValue) + '" placeholder="Repeat new password" class="text-input" required />' +
+                      '<button type="button" id="show-confirm-btn" class="eye-button" aria-label="Show confirm password">' + drawSmallIcon(confirmEyeName, 'small-icon') + '</button>' +
+                    '</div>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="' + rulesBoxClass + '">' +
+                  '<p>Password rules:</p>' +
+                  '<ul class="password-rules-list">' +
+                    '<li>- Must verify your previous password</li>' +
+                    '<li>- At least 5 characters long</li>' +
+                    '<li>- At least 1 number (0 to 9)</li>' +
+                    '<li>- At least 1 special character (like ! @ # $ % &amp; *)</li>' +
+                    '<li>- Confirm new password must match your new password</li>' +
+                  '</ul>' +
+                '</div>' +
+              '</div>' +
+              '<div class="panel-footer">' +
+                '<button type="submit" class="button button-yellow">Update Password</button>' +
+              '</div>' +
+            '</form>' +
+
+            '<!-- Delete account box -->' +
+            '<div class="delete-card">' +
+              '<div class="banner-text-limit">' +
+                '<h2 class="panel-heading">Delete Account</h2>' +
+                '<p class="panel-subtext">' +
+                  'Deleting your account permanently removes your profile, settings, and completed mission trail from this device. Your password will be required.' +
+                '</p>' +
+              '</div>' +
+              '<button type="button" id="delete-account-btn" class="delete-button">Delete Account</button>' +
+            '</div>';
+
+          if (isParent) {
+            showAvatar(document.getElementById('summary-avatar-box'), user.avatar || 'owl', 110, true);
+            document.getElementById('nickname-input').oninput = function () {
+              draftNickname = this.value;
+              infoErrorMessage = '';
+            };
+            var avatarButtons = document.querySelectorAll('[data-pick-avatar]');
+            for (var j = 0; j < avatarButtons.length; j++) {
+              avatarButtons[j].onclick = function () {
+                draftAvatar = this.getAttribute('data-pick-avatar');
+                infoErrorMessage = '';
+                drawProfilePage();
+              };
+            }
+          }
+
+          document.getElementById('age-group-select').onchange = function () {
+            draftAge = this.value;
+            infoErrorMessage = '';
+          };
+
+          document.getElementById('reset-changes-btn').onclick = function () {
+            draftNickname = user.nickname || '';
+            draftAge = user.ageGroup || '6-8';
+            draftAvatar = user.avatar || 'owl';
+            infoErrorMessage = '';
+            infoSuccessMessage = '';
+            drawProfilePage();
+          };
+
+          document.getElementById('edit-profile-form').onsubmit = function (event) {
+            event.preventDefault();
+            infoSuccessMessage = '';
+            if (isParent) {
+              var nicknameProblem = checkNicknameError(draftNickname);
+              if (nicknameProblem) {
+                infoErrorMessage = nicknameProblem;
+                drawProfilePage();
+                return;
+              }
+            }
+            if (!draftAge) {
+              infoErrorMessage = 'Please select an age group.';
+              drawProfilePage();
+              return;
+            }
+            infoErrorMessage = '';
+            popupMode = 'save-password';
+            popupPassword = '';
+            popupShowPassword = false;
+            popupError = '';
+            drawPopupModal();
+          };
+
+          document.getElementById('previous-password-input').oninput = function () {
+            previousPasswordValue = this.value;
+            passwordErrorMessage = '';
+          };
+          document.getElementById('new-password-input').oninput = function () {
+            newPasswordValue = this.value;
+            passwordErrorMessage = '';
+          };
+          document.getElementById('confirm-new-input').oninput = function () {
+            confirmNewPasswordValue = this.value;
+            passwordErrorMessage = '';
+          };
+          document.getElementById('show-previous-btn').onclick = function () {
+            showPreviousPassword = !showPreviousPassword;
+            drawProfilePage();
+          };
+          document.getElementById('show-new-btn').onclick = function () {
+            showNewPassword = !showNewPassword;
+            drawProfilePage();
+          };
+          document.getElementById('show-confirm-btn').onclick = function () {
+            showConfirmPassword = !showConfirmPassword;
+            drawProfilePage();
+          };
+          document.getElementById('password-rules-btn').onclick = function () {
+            passwordRulesOpen = !passwordRulesOpen;
+            drawProfilePage();
+          };
+
+          // Checks previous password and updates the password
+          document.getElementById('update-password-form').onsubmit = function (event) {
+            event.preventDefault();
+            passwordSuccessMessage = '';
+            if (!matchesCurrentPassword(previousPasswordValue)) {
+              passwordErrorMessage = 'Previous password is incorrect. Please check and try again.';
+              drawProfilePage();
+              return;
+            }
+            var passwordProblem = checkPasswordError(newPasswordValue);
+            if (passwordProblem) {
+              passwordErrorMessage = passwordProblem;
+              drawProfilePage();
+              return;
+            }
+            if (newPasswordValue === previousPasswordValue) {
+              passwordErrorMessage = 'Please choose a new password that is different from your previous password.';
+              drawProfilePage();
+              return;
+            }
+            if (newPasswordValue !== confirmNewPasswordValue) {
+              passwordErrorMessage = 'New passwords do not match.';
+              drawProfilePage();
+              return;
+            }
+
+            user.password = newPasswordValue;
+            saveFullAccount(user);
+            previousPasswordValue = '';
+            newPasswordValue = '';
+            confirmNewPasswordValue = '';
+            showPreviousPassword = false;
+            showNewPassword = false;
+            showConfirmPassword = false;
+            passwordErrorMessage = '';
+            passwordSuccessMessage = 'Your password has been updated!';
+            drawProfilePage();
+          };
+
+          document.getElementById('delete-account-btn').onclick = function () {
+            popupMode = 'delete-confirm';
+            popupPassword = '';
+            popupShowPassword = false;
+            popupError = '';
+            drawPopupModal();
+          };
+        }
+
+        window.onUserLoggedOut = drawProfilePage;
+        drawProfilePage();
+      }
+    </script>
+  </body>
+</html>

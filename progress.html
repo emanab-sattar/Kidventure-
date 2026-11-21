@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>My Progress | Kidventure</title>
+    <meta
+      name="description"
+      content="Track completed real-world missions, skill milestones, and explorer profile settings in Kidventure."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./auth.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+
+      <!-- Top navigation bar -->
+      <header id="site-header"></header>
+
+      <main id="main-content" class="page-content">
+        <!-- Progress summary, skill counters, activity cards, and completed mission trail -->
+        <section id="progress-root" class="wide-page"></section>
+      </main>
+
+      <!-- Bottom footer -->
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./auth.js"></script>
+    <script>
+      loadHeaderAndFooter('progress');
+
+      // Counts how many saved missions belong to a given skill group
+      function countBySkill(adventures, skillName) {
+        var total = 0;
+        for (var i = 0; i < adventures.length; i++) {
+          if (adventures[i].domain === skillName) {
+            total += 1;
+          }
+        }
+        return total;
+      }
+
+      // Draws the whole progress page based on the current user and saved missions
+      function drawProgressPage() {
+        var user = getCurrentUser();
+        var adventures = getSavedAdventures();
+
+        var rightPictureHtml = '<div id="progress-owl-box"></div>';
+        if (user && user.accountType === 'parent') {
+          rightPictureHtml =
+            '<a href="./profile.html" class="summary-avatar-card">' +
+              '<div id="summary-avatar-box"></div>' +
+              '<span class="summary-avatar-name">' + makeTextSafe(user.nickname) + '</span>' +
+              '<span class="summary-avatar-age">Ages ' + makeTextSafe(user.ageGroup) + '</span>' +
+            '</a>';
+        }
+
+        var actionButtonHtml = '<a href="./register.html" class="button button-purple action-top-gap">Save Progress with Adult Account</a>';
+        if (user) {
+          actionButtonHtml = '<a href="./profile.html" class="back-button action-top-gap">View &amp; Manage Profile</a>';
+        }
+
+        var skillCards = [
+          { key: 'Think', label: 'Think & Solve', colorClass: 'skill-blue', icon: 'cognitive' },
+          { key: 'Create', label: 'Imagine & Create', colorClass: 'skill-pink', icon: 'creative' },
+          { key: 'Move', label: 'Move & Explore', colorClass: 'skill-green', icon: 'physical' },
+          { key: 'Team Up', label: 'Connect & Share', colorClass: 'skill-yellow', icon: 'social' },
+          { key: 'Feel & Grow', label: 'Feel & Grow', colorClass: 'skill-purple', icon: 'emotional' }
+        ];
+
+        var skillGridHtml = '';
+        for (var i = 0; i < skillCards.length; i++) {
+          var card = skillCards[i];
+          skillGridHtml +=
+            '<div class="skill-count-card ' + card.colorClass + '">' +
+              getSkillIconSvg(card.icon) +
+              '<h2 class="skill-count-name">' + makeTextSafe(card.key) + '</h2>' +
+              '<p class="small-badge-text">' + makeTextSafe(card.label) + '</p>' +
+              '<p class="skill-count-number">' + countBySkill(adventures, card.key) + '</p>' +
+            '</div>';
+        }
+
+        var historyHtml = '';
+        if (adventures.length === 0) {
+          historyHtml =
+            '<div class="empty-trail-box">' +
+              '<div id="empty-trail-owl" class="empty-trail-owl"></div>' +
+              '<h3 class="empty-trail-title">No stars on your trail yet!</h3>' +
+              '<p class="empty-trail-text">' +
+                'Pick any of the three adventures below, try it away from the screen, and mark it complete to place your first storybook star.' +
+              '</p>' +
+            '</div>';
+        } else {
+          historyHtml = '<ol class="mission-list">';
+          for (var j = 0; j < adventures.length; j++) {
+            var item = adventures[j];
+            historyHtml +=
+              '<li class="mission-item">' +
+                '<div class="mission-left">' +
+                  '<div class="mission-number">' + (j + 1) + '</div>' +
+                  '<div>' +
+                    '<h3 class="mission-title">' + makeTextSafe(item.title) + '</h3>' +
+                    '<p class="small-badge-text">' + makeTextSafe(item.domain) + ' - Completed ' + makeTextSafe(item.completedAt) + '</p>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="mission-star">' +
+                  drawSmallIcon('star', 'small-icon') +
+                  '<span>Offline Star</span>' +
+                '</div>' +
+              '</li>';
+          }
+          historyHtml += '</ol>';
+        }
+
+        var welcomeHeading = 'Your Explorer Trail';
+        if (user) {
+          welcomeHeading = 'Welcome, ' + makeTextSafe(user.nickname) + '!';
+        }
+
+        var clearButtonHtml = '';
+        if (adventures.length > 0) {
+          clearButtonHtml = '<button type="button" id="clear-trail-btn" class="back-button">Clear Trail</button>';
+        }
+
+        document.getElementById('progress-root').innerHTML =
+          '<!-- Top welcome box with user name and avatar or Hoot owl -->' +
+          '<div class="top-banner-sky">' +
+            '<div class="banner-text-limit">' +
+              '<p class="small-label">My Adventure Journey</p>' +
+              '<h1 class="banner-title">' + welcomeHeading + '</h1>' +
+              '<p class="banner-description">' +
+                'Every real-world game, craft, or career choice you finish adds a gentle milestone to your storybook trail. No pressure, no timers!' +
+              '</p>' +
+              actionButtonHtml +
+            '</div>' +
+            rightPictureHtml +
+          '</div>' +
+
+          '<!-- Five skill counter boxes -->' +
+          '<div class="skill-count-grid">' + skillGridHtml + '</div>' +
+
+          '<!-- Shortcuts to start one of the three activities -->' +
+          '<div class="progress-activities-section">' +
+            '<p class="small-label">Three Real-World Ways to Play</p>' +
+            '<h2 class="progress-activities-title">Pick Your Next Adventure!</h2>' +
+            '<div id="progress-activities-box"></div>' +
+          '</div>' +
+
+          '<!-- List of completed real-world missions -->' +
+          '<div class="panel-card panel-card-spaced">' +
+            '<div class="panel-header">' +
+              '<div class="panel-heading-row">' +
+                drawSmallIcon('compass', 'large-icon') +
+                '<h2 class="panel-heading">Completed Real-World Missions</h2>' +
+              '</div>' +
+              clearButtonHtml +
+            '</div>' +
+            historyHtml +
+          '</div>';
+
+        if (user && user.accountType === 'parent') {
+          showAvatar(document.getElementById('summary-avatar-box'), user.avatar || 'owl', 130, true);
+        } else {
+          var owlMessage = 'Your trail is ready! Try an adventure and tap "I Did This Offline!"';
+          if (user && user.accountType === 'educator') {
+            owlMessage = 'Ready for your classroom (Ages ' + user.ageGroup + ')! Pick any of the 3 adventures below.';
+          } else if (adventures.length === 1) {
+            owlMessage = 'Hoot! You explored 1 real-world adventure!';
+          } else if (adventures.length > 1) {
+            owlMessage = 'Hoot! You explored ' + adventures.length + ' real-world adventures!';
+          }
+
+          showOwl(document.getElementById('progress-owl-box'), {
+            variant: 'medium',
+            interactive: true,
+            showBubbleByDefault: true,
+            initialMessage: owlMessage
+          });
+        }
+
+        if (adventures.length === 0) {
+          showOwl(document.getElementById('empty-trail-owl'), { variant: 'small', interactive: false });
+        }
+
+        drawActivityCards(document.getElementById('progress-activities-box'));
+
+        var clearTrailButton = document.getElementById('clear-trail-btn');
+        if (clearTrailButton) {
+          clearTrailButton.onclick = function () {
+            clearAdventures();
+            drawProgressPage();
+          };
+        }
+      }
+
+      window.onUserLoggedOut = drawProgressPage;
+      drawProgressPage();
+    </script>
+  </body>
+</html>

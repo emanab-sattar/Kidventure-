@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Log In | Kidventure</title>
+    <meta
+      name="description"
+      content="Sign in to Kidventure to continue your real-world adventures and explorer trail."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./auth.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+
+      <!-- Top navigation bar -->
+      <header id="site-header"></header>
+
+      <main id="main-content" class="page-content">
+        <section class="form-page">
+          <!-- Back to home button and privacy promise button -->
+          <div class="top-bar-row">
+            <a href="./index.html" class="back-button">Back to Home</a>
+            <button type="button" id="open-privacy-btn" class="back-button privacy-top-button">Privacy Promise</button>
+          </div>
+
+          <!-- White login card with username, password, rules toggle, and forgot password link -->
+          <div class="form-card">
+            <h1 class="form-heading">Welcome Back!</h1>
+            <p class="form-subtitle form-subtitle-spaced">
+              Log in to view your child's progress and start an adventure.
+            </p>
+
+            <!-- Error message box shown when login checks fail -->
+            <div id="error-box" class="error-box hidden">
+              <span id="error-icon"></span>
+              <span id="error-message"></span>
+            </div>
+
+            <form id="login-form" class="form-fields" novalidate>
+              <div class="field-group">
+                <label for="username-input" class="field-label">Username</label>
+                <input
+                  id="username-input"
+                  type="text"
+                  name="username"
+                  autocomplete="username"
+                  placeholder="Enter your username"
+                  class="text-input"
+                  required
+                />
+              </div>
+
+              <div class="field-group">
+                <label for="password-input" class="field-label">Password</label>
+                <div class="password-box">
+                  <input
+                    id="password-input"
+                    type="password"
+                    name="password"
+                    autocomplete="current-password"
+                    placeholder="Enter your password"
+                    class="text-input"
+                    required
+                  />
+                  <button type="button" id="show-password-btn" class="eye-button" aria-label="Show password"></button>
+                </div>
+
+                <!-- Question mark button to open password rules and link for forgot password -->
+                <div class="password-help-row">
+                  <button type="button" id="password-rules-btn" class="password-help-button">
+                    <span id="question-icon"></span>
+                    <span>Password rules</span>
+                  </button>
+                  <a href="./forgot-password.html" class="text-link">Forgot password?</a>
+                </div>
+
+                <!-- Hidden password rules box shown when user clicks Password rules -->
+                <div id="password-rules-box" class="password-rules-box hidden">
+                  <p>Password rules:</p>
+                  <ul class="password-rules-list">
+                    <li>- At least 5 characters long</li>
+                    <li>- At least 1 number (0 to 9)</li>
+                    <li>- At least 1 special character (like ! @ # $ % &amp; *)</li>
+                  </ul>
+                </div>
+              </div>
+
+              <button type="submit" class="button button-yellow button-wide">Log in</button>
+
+              <p class="form-footer-note">
+                Need an adult account?
+                <a href="./register.html" class="text-link">Create account</a>
+              </p>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom footer -->
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./auth.js"></script>
+    <script>
+      // Sets up the header, footer, and small icons on the login page
+      loadHeaderAndFooter('login');
+      document.getElementById('error-icon').innerHTML = drawSmallIcon('circle-alert', 'medium-icon');
+      document.getElementById('question-icon').innerHTML = drawSmallIcon('circle-question-mark', 'small-icon');
+
+      document.getElementById('open-privacy-btn').onclick = function () {
+        openPrivacyPanel();
+      };
+
+      // Handles the eye button that shows or hides the typed password
+      var passwordInput = document.getElementById('password-input');
+      var showPasswordButton = document.getElementById('show-password-btn');
+      var passwordVisible = false;
+
+      function updatePasswordEye() {
+        passwordInput.type = passwordVisible ? 'text' : 'password';
+        showPasswordButton.innerHTML = drawSmallIcon(passwordVisible ? 'eye-off' : 'eye', 'small-icon');
+      }
+
+      updatePasswordEye();
+      showPasswordButton.onclick = function () {
+        passwordVisible = !passwordVisible;
+        updatePasswordEye();
+      };
+
+      // Opens or closes the password rules box when the question button is clicked
+      document.getElementById('password-rules-btn').onclick = function () {
+        var rulesBox = document.getElementById('password-rules-box');
+        if (rulesBox.classList.contains('hidden')) {
+          rulesBox.classList.remove('hidden');
+        } else {
+          rulesBox.classList.add('hidden');
+        }
+      };
+
+      // Checks username and password when the login form is submitted
+      document.getElementById('login-form').onsubmit = function (event) {
+        event.preventDefault();
+        var errorBox = document.getElementById('error-box');
+        var errorMessage = document.getElementById('error-message');
+        var username = document.getElementById('username-input').value.trim();
+        var password = passwordInput.value;
+
+        var usernameProblem = checkUsernameError(username);
+        if (usernameProblem) {
+          errorMessage.textContent = usernameProblem;
+          errorBox.classList.remove('hidden');
+          return;
+        }
+
+        var passwordProblem = checkPasswordError(password);
+        if (passwordProblem) {
+          errorMessage.textContent = passwordProblem;
+          errorBox.classList.remove('hidden');
+          return;
+        }
+
+        var savedAccount = findProfileByUsername(username);
+        if (savedAccount && savedAccount.password && savedAccount.password !== password) {
+          errorMessage.textContent = 'Incorrect password. Please check your password and try again.';
+          errorBox.classList.remove('hidden');
+          return;
+        }
+
+        errorBox.classList.add('hidden');
+
+        var accountToSave = savedAccount || {
+          username: username,
+          password: password,
+          accountType: 'parent',
+          nickname: username,
+          ageGroup: '6-8',
+          avatar: 'owl'
+        };
+
+        saveFullAccount(accountToSave);
+
+        // Sends the user straight to an activity if they picked one before logging in
+        var savedActivity = getSavedActivityChoice();
+        if (savedActivity && ACTIVITY_FILES[savedActivity]) {
+          clearActivityChoice();
+          window.location.href = ACTIVITY_FILES[savedActivity];
+        } else {
+          window.location.href = './progress.html';
+        }
+      };
+    </script>
+  </body>
+</html>

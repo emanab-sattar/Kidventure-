@@ -1,0 +1,549 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Create Account | Kidventure</title>
+    <meta
+      name="description"
+      content="Create a parent or educator account on Kidventure to unlock safe, real-world adventures for ages 6 to 12."
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@500;600;700;800&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./auth.css" />
+  <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
+  <body>
+    <div class="page-wrapper">
+      <div id="skip-link"></div>
+
+      <!-- Top navigation bar -->
+      <header id="site-header"></header>
+
+      <main id="main-content" class="page-content">
+        <section class="form-page">
+          <!-- Back to home button and privacy promise button -->
+          <div class="top-bar-row">
+            <a href="./index.html" class="back-button">Back to Home</a>
+            <button type="button" id="open-privacy-btn" class="back-button privacy-top-button">Privacy Promise</button>
+          </div>
+
+          <!-- Two-step registration card for adults -->
+          <div class="form-card form-card-wide">
+            <div class="step-header">
+              <span id="step-label" class="step-label">Step 1 of 2 - Account Details</span>
+              <div class="step-bars">
+                <span id="step-bar-1" class="step-bar current"></span>
+                <span id="step-bar-2" class="step-bar"></span>
+              </div>
+            </div>
+
+            <!-- Error banner shown when a field rule fails -->
+            <div id="error-box" class="error-box hidden">
+              <span id="error-icon"></span>
+              <span id="error-message"></span>
+            </div>
+
+            <!-- Step 1: Role choice, username, password, security question, and privacy agreement -->
+            <form id="step-one-form" class="form-fields" novalidate>
+              <div>
+                <h1 class="form-heading">Adult Account Setup</h1>
+                <p class="form-subtitle">
+                  Grown-ups create the account first. No emails, real names, or photos are ever required.
+                </p>
+              </div>
+
+              <!-- Adult chooses Parent / Guardian or Educator -->
+              <div class="field-group">
+                <span class="field-label">I am a:</span>
+                <div class="role-grid">
+                  <label id="parent-role-card" class="role-card selected">
+                    <input type="radio" name="account_type" value="parent" checked />
+                    <span>Parent / Guardian</span>
+                  </label>
+                  <label id="educator-role-card" class="role-card">
+                    <input type="radio" name="account_type" value="educator" />
+                    <span>Educator</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="username-input" class="field-label">Username</label>
+                <input
+                  id="username-input"
+                  type="text"
+                  name="username"
+                  autocomplete="username"
+                  placeholder="Create a username (at least 4 characters)"
+                  class="text-input"
+                  required
+                />
+              </div>
+
+              <div class="field-group">
+                <label for="password-input" class="field-label">Password</label>
+                <div class="password-box">
+                  <input
+                    id="password-input"
+                    type="password"
+                    name="password"
+                    autocomplete="new-password"
+                    placeholder="Create a password"
+                    class="text-input"
+                    required
+                  />
+                  <button type="button" id="show-password-btn" class="eye-button" aria-label="Show password"></button>
+                </div>
+
+                <div>
+                  <button type="button" id="password-rules-btn" class="password-help-button">
+                    <span id="question-icon"></span>
+                    <span>Password rules</span>
+                  </button>
+                </div>
+
+                <div id="password-rules-box" class="password-rules-box hidden">
+                  <p>Password rules:</p>
+                  <ul class="password-rules-list">
+                    <li>- At least 5 characters long</li>
+                    <li>- At least 1 number (0 to 9)</li>
+                    <li>- At least 1 special character (like ! @ # $ % &amp; *)</li>
+                    <li>- Confirm password must match your password</li>
+                  </ul>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <label for="confirm-password-input" class="field-label">Confirm Password</label>
+                <div class="password-box">
+                  <input
+                    id="confirm-password-input"
+                    type="password"
+                    name="confirm_password"
+                    autocomplete="new-password"
+                    placeholder="Repeat your password"
+                    class="text-input"
+                    required
+                  />
+                  <button type="button" id="show-confirm-btn" class="eye-button" aria-label="Show confirm password"></button>
+                </div>
+              </div>
+
+              <!-- Security question and answer in case the user forgets their password -->
+              <div class="field-group">
+                <label for="security-question-select" class="field-label">Adult Security Question (for password recovery)</label>
+                <select id="security-question-select" name="security_question" class="select-input" required>
+                  <option value="" disabled selected>Choose one security question</option>
+                  <option value="What city were you born in?">What city were you born in?</option>
+                  <option value="What was your first pet's name?">What was your first pet's name?</option>
+                  <option value="What's your mother's name?">What's your mother's name?</option>
+                </select>
+              </div>
+
+              <div class="field-group">
+                <label for="security-answer-input" class="field-label">Security Answer</label>
+                <input
+                  id="security-answer-input"
+                  type="text"
+                  name="security_answer"
+                  placeholder="Enter a secret answer only you know"
+                  class="text-input"
+                  required
+                />
+              </div>
+
+              <label class="consent-box">
+                <input id="privacy-consent-checkbox" type="checkbox" required />
+                <span>
+                  I am a parent, guardian, or educator and I agree to the
+                  <button type="button" id="inline-privacy-btn" class="text-link">Privacy &amp; Child Safety Policy</button>.
+                </span>
+              </label>
+
+              <button type="submit" class="button button-yellow button-wide">Continue to Profile Setup</button>
+
+              <p class="form-footer-note">
+                Already have an account?
+                <a href="./login.html" class="text-link">Log in</a>
+              </p>
+            </form>
+
+            <!-- Step 2: Profile details (Parent picks child nickname/age/avatar, Educator picks classroom age) -->
+            <form id="step-two-form" class="form-fields hidden" novalidate>
+              <div class="top-bar-row top-bar-compact">
+                <button type="button" id="back-to-step1-btn" class="back-button">Back to Account Details</button>
+                <span id="role-badge-text" class="small-badge-text"></span>
+              </div>
+
+              <!-- Parent profile setup inputs -->
+              <div id="parent-setup-fields" class="form-fields">
+                <div>
+                  <h1 class="form-heading">Explorer Profile Setup</h1>
+                  <p class="form-subtitle">
+                    Add a playful nickname and age group (no real names needed).
+                  </p>
+                </div>
+
+                <div class="field-group">
+                  <label for="child-nickname-input" class="field-label">Child's Adventure Nickname</label>
+                  <input
+                    id="child-nickname-input"
+                    type="text"
+                    name="child_nickname"
+                    maxlength="20"
+                    placeholder="e.g., SunnyExplorer"
+                    class="text-input"
+                    required
+                  />
+                </div>
+
+                <div class="field-group">
+                  <label for="child-age-select" class="field-label">Child's Age Group (6 to 12)</label>
+                  <select id="child-age-select" name="age_group" class="select-input" required>
+                    <option value="" disabled selected>Select child's age group</option>
+                    <option value="6-8">Ages 6 to 8</option>
+                    <option value="9-10">Ages 9 to 10</option>
+                    <option value="11-12">Ages 11 to 12</option>
+                  </select>
+                </div>
+
+                <div class="field-group">
+                  <span class="field-label">Pick an Animal Avatar (optional)</span>
+                  <div id="avatar-picker-grid" class="avatar-grid"></div>
+                </div>
+
+                <div class="avatar-preview-box">
+                  <div id="preview-avatar-box" class="avatar-preview-circle"></div>
+                  <div>
+                    <p class="preview-label">Explorer Preview</p>
+                    <p id="preview-name-text" class="preview-title">Welcome, SunnyExplorer!</p>
+                    <p id="preview-age-text" class="field-hint">Ages 6 to 12 - Private family profile</p>
+                  </div>
+                </div>
+
+                <button type="submit" class="button button-yellow button-wide">Create Account</button>
+              </div>
+
+              <!-- Educator classroom setup inputs -->
+              <div id="educator-setup-fields" class="form-fields hidden">
+                <div>
+                  <h1 class="form-heading">Classroom Profile Setup</h1>
+                  <p class="form-subtitle">
+                    Tell us which age group your classroom learns with so activities fit your students.
+                  </p>
+                </div>
+
+                <div class="field-group">
+                  <label for="classroom-age-select" class="field-label">What age group is the classroom of children you are teaching?</label>
+                  <select id="classroom-age-select" name="classroom_age_group" class="select-input" required>
+                    <option value="" disabled selected>Select classroom age group</option>
+                    <option value="6-8">Ages 6 to 8</option>
+                    <option value="9-10">Ages 9 to 10</option>
+                    <option value="11-12">Ages 11 to 12</option>
+                    <option value="6-12">Mixed ages (6 to 12)</option>
+                  </select>
+                </div>
+
+                <div class="info-box">
+                  Educator accounts only store your username, classroom age range, and completed classroom activity history.
+                </div>
+
+                <button type="submit" class="button button-yellow button-wide">Create Educator Account</button>
+              </div>
+
+              <p class="form-footer-note">
+                Already have an account?
+                <a href="./login.html" class="text-link">Log in</a>
+              </p>
+            </form>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom footer -->
+      <footer id="site-footer"></footer>
+    </div>
+
+    <script src="./shared.js"></script>
+    <script src="./auth.js"></script>
+    <script>
+      // Sets up the header, footer, and small icons
+      loadHeaderAndFooter('register');
+      document.getElementById('error-icon').innerHTML = drawSmallIcon('circle-alert', 'medium-icon');
+      document.getElementById('question-icon').innerHTML = drawSmallIcon('circle-question-mark', 'small-icon');
+
+      document.getElementById('open-privacy-btn').onclick = function () {
+        openPrivacyPanel();
+      };
+      document.getElementById('inline-privacy-btn').onclick = function (event) {
+        event.preventDefault();
+        openPrivacyPanel();
+      };
+
+      var accountType = 'parent';
+      var chosenAvatar = 'owl';
+
+      // Shows or hides the red error banner
+      function showErrorMessage(message) {
+        var errorBox = document.getElementById('error-box');
+        var errorText = document.getElementById('error-message');
+        if (!message) {
+          errorBox.classList.add('hidden');
+          errorText.textContent = '';
+        } else {
+          errorText.textContent = message;
+          errorBox.classList.remove('hidden');
+        }
+      }
+
+      // Connects an eye button to toggle password text visibility
+      function setupPasswordEye(inputId, buttonId) {
+        var passwordField = document.getElementById(inputId);
+        var eyeButton = document.getElementById(buttonId);
+        var isVisible = false;
+
+        function refreshEyeIcon() {
+          if (isVisible) {
+            passwordField.type = 'text';
+            eyeButton.innerHTML = drawSmallIcon('eye-off', 'small-icon');
+          } else {
+            passwordField.type = 'password';
+            eyeButton.innerHTML = drawSmallIcon('eye', 'small-icon');
+          }
+        }
+
+        refreshEyeIcon();
+        eyeButton.onclick = function () {
+          isVisible = !isVisible;
+          refreshEyeIcon();
+        };
+      }
+
+      setupPasswordEye('password-input', 'show-password-btn');
+      setupPasswordEye('confirm-password-input', 'show-confirm-btn');
+
+      // Opens or closes the password rules box when clicked
+      document.getElementById('password-rules-btn').onclick = function () {
+        var rulesBox = document.getElementById('password-rules-box');
+        if (rulesBox.classList.contains('hidden')) {
+          rulesBox.classList.remove('hidden');
+        } else {
+          rulesBox.classList.add('hidden');
+        }
+      };
+
+      // Updates the Parent vs Educator button styling when clicked
+      var roleRadios = document.querySelectorAll('input[name="account_type"]');
+      for (var radioIndex = 0; radioIndex < roleRadios.length; radioIndex++) {
+        roleRadios[radioIndex].onchange = function () {
+          accountType = this.value;
+          showErrorMessage('');
+          var parentCard = document.getElementById('parent-role-card');
+          var educatorCard = document.getElementById('educator-role-card');
+          if (accountType === 'parent') {
+            parentCard.className = 'role-card selected';
+            educatorCard.className = 'role-card';
+          } else {
+            parentCard.className = 'role-card';
+            educatorCard.className = 'role-card selected';
+          }
+        };
+      }
+
+      // Switches between Step 1 and Step 2 of registration
+      function goToStep(stepNumber) {
+        showErrorMessage('');
+        var stepOneForm = document.getElementById('step-one-form');
+        var stepTwoForm = document.getElementById('step-two-form');
+        var stepLabel = document.getElementById('step-label');
+        var stepBarTwo = document.getElementById('step-bar-2');
+        var roleBadge = document.getElementById('role-badge-text');
+        var parentFields = document.getElementById('parent-setup-fields');
+        var educatorFields = document.getElementById('educator-setup-fields');
+
+        if (stepNumber === 1) {
+          stepOneForm.classList.remove('hidden');
+          stepTwoForm.classList.add('hidden');
+          stepLabel.textContent = 'Step 1 of 2 - Account Details';
+          stepBarTwo.className = 'step-bar';
+        } else {
+          stepOneForm.classList.add('hidden');
+          stepTwoForm.classList.remove('hidden');
+          stepLabel.textContent = 'Step 2 of 2 - Profile Setup';
+          stepBarTwo.className = 'step-bar finished';
+
+          if (accountType === 'parent') {
+            roleBadge.textContent = 'Parent / Guardian Setup';
+            parentFields.classList.remove('hidden');
+            educatorFields.classList.add('hidden');
+          } else {
+            roleBadge.textContent = 'Educator Setup';
+            parentFields.classList.add('hidden');
+            educatorFields.classList.remove('hidden');
+          }
+        }
+      }
+
+      // Validates Step 1 inputs when user presses Continue to Profile Setup
+      document.getElementById('step-one-form').onsubmit = function (event) {
+        event.preventDefault();
+        var username = document.getElementById('username-input').value.trim();
+        var password = document.getElementById('password-input').value;
+        var confirmPassword = document.getElementById('confirm-password-input').value;
+        var securityQuestion = document.getElementById('security-question-select').value;
+        var securityAnswer = document.getElementById('security-answer-input').value.trim();
+        var consentChecked = document.getElementById('privacy-consent-checkbox').checked;
+
+        var usernameProblem = checkUsernameError(username);
+        if (usernameProblem) {
+          showErrorMessage(usernameProblem);
+          return;
+        }
+        var passwordProblem = checkPasswordError(password);
+        if (passwordProblem) {
+          showErrorMessage(passwordProblem);
+          return;
+        }
+        if (password !== confirmPassword) {
+          showErrorMessage('Passwords do not match.');
+          return;
+        }
+        if (!securityQuestion) {
+          showErrorMessage('Please choose a security question in case you ever forget your password.');
+          return;
+        }
+        if (securityAnswer.length < 2) {
+          showErrorMessage('Please enter an answer to your security question (at least 2 characters).');
+          return;
+        }
+        if (!consentChecked) {
+          showErrorMessage('Please agree to the privacy policy to continue.');
+          return;
+        }
+        goToStep(2);
+      };
+
+      document.getElementById('back-to-step1-btn').onclick = function () {
+        goToStep(1);
+      };
+
+      // Draws the 6 clickable animal avatars and updates the preview card
+      function drawAvatarGrid() {
+        var grid = document.getElementById('avatar-picker-grid');
+        var html = '';
+        for (var i = 0; i < AVATAR_LIST.length; i++) {
+          var item = AVATAR_LIST[i];
+          var isSelected = chosenAvatar === item.id;
+          var cardClass = 'avatar-card ' + item.bgClass;
+          var badgeHtml = '';
+          if (isSelected) {
+            cardClass += ' selected';
+            badgeHtml = '<span class="avatar-check">' + drawSmallIcon('check', 'small-icon') + '</span>';
+          }
+          html +=
+            '<button type="button" class="' + cardClass + '" data-avatar="' + item.id + '">' +
+              badgeHtml +
+              '<div id="avatar-box-' + item.id + '"></div>' +
+              '<span class="avatar-name">' + makeTextSafe(item.label) + '</span>' +
+            '</button>';
+        }
+        grid.innerHTML = html;
+
+        for (var j = 0; j < AVATAR_LIST.length; j++) {
+          showAvatar(document.getElementById('avatar-box-' + AVATAR_LIST[j].id), AVATAR_LIST[j].id, 56, true);
+        }
+
+        var cards = grid.querySelectorAll('[data-avatar]');
+        for (var k = 0; k < cards.length; k++) {
+          cards[k].onclick = function () {
+            chosenAvatar = this.getAttribute('data-avatar');
+            drawAvatarGrid();
+            updateExplorerPreview();
+          };
+        }
+      }
+
+      // Updates the Explorer Preview box whenever nickname, age, or avatar changes
+      function updateExplorerPreview() {
+        var nickname = document.getElementById('child-nickname-input').value.trim();
+        if (!nickname) {
+          nickname = 'SunnyExplorer';
+        }
+        var ageGroup = document.getElementById('child-age-select').value;
+        var ageLabel = 'Ages 6 to 12';
+        if (ageGroup) {
+          ageLabel = 'Ages ' + ageGroup;
+        }
+        document.getElementById('preview-name-text').textContent = 'Welcome, ' + nickname + '!';
+        document.getElementById('preview-age-text').textContent = ageLabel + ' - Private family profile';
+        showAvatar(document.getElementById('preview-avatar-box'), chosenAvatar, 54, true);
+      }
+
+      document.getElementById('child-nickname-input').oninput = updateExplorerPreview;
+      document.getElementById('child-age-select').onchange = updateExplorerPreview;
+      drawAvatarGrid();
+      updateExplorerPreview();
+
+      // Saves the new account when Step 2 is submitted
+      document.getElementById('step-two-form').onsubmit = function (event) {
+        event.preventDefault();
+        var username = document.getElementById('username-input').value.trim();
+        var password = document.getElementById('password-input').value;
+        var securityQuestion = document.getElementById('security-question-select').value;
+        var securityAnswer = document.getElementById('security-answer-input').value.trim().toLowerCase();
+
+        if (accountType === 'parent') {
+          var nickname = document.getElementById('child-nickname-input').value;
+          var ageGroup = document.getElementById('child-age-select').value;
+          var nicknameProblem = checkNicknameError(nickname);
+          if (nicknameProblem) {
+            showErrorMessage(nicknameProblem);
+            return;
+          }
+          if (!ageGroup) {
+            showErrorMessage("Please select your child's age group.");
+            return;
+          }
+          saveFullAccount({
+            username: username,
+            password: password,
+            securityQuestion: securityQuestion,
+            securityAnswer: securityAnswer,
+            accountType: 'parent',
+            nickname: nickname.trim(),
+            ageGroup: ageGroup,
+            avatar: chosenAvatar
+          });
+        } else {
+          var classroomAge = document.getElementById('classroom-age-select').value;
+          if (!classroomAge) {
+            showErrorMessage('Please select the age group of the classroom you are teaching.');
+            return;
+          }
+          saveFullAccount({
+            username: username,
+            password: password,
+            securityQuestion: securityQuestion,
+            securityAnswer: securityAnswer,
+            accountType: 'educator',
+            nickname: username + ' (Classroom)',
+            ageGroup: classroomAge
+          });
+        }
+
+        var savedActivity = getSavedActivityChoice();
+        if (savedActivity && ACTIVITY_FILES[savedActivity]) {
+          clearActivityChoice();
+          window.location.href = ACTIVITY_FILES[savedActivity];
+        } else {
+          window.location.href = './progress.html';
+        }
+      };
+    </script>
+  </body>
+</html>
