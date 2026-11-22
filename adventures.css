@@ -281,7 +281,7 @@
 .detail-box-text {
   margin-top: 8px;
   font-size: 15px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .detail-box-story {
@@ -292,9 +292,10 @@
 
 .detail-box-note {
   margin-top: 12px;
-  font-size: 12px;
+  font-size: 15px;
   font-weight: 700;
-  color: #625F70;
+  color: #514168;
+
 }
 
 .detail-box-hint {

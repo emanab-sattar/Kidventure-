@@ -776,6 +776,8 @@
 
 .mission-list {
   margin-top: 20px;
+  padding-left: 0;
+  list-style: none;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -911,4 +913,108 @@
   .skill-count-grid {
     grid-template-columns: repeat(5, 1fr);
   }
+}
+.required { color: #d62839; }
+input.invalid { border-color: #d62839 !important; background: #fff5f5; }
+.field-error { color: #d62839; font-size: 0.9rem; margin: 6px 0 0; }
+
+/* Clickable mission rows and activity history popup box on My Progress */
+.empty-trail-actions {
+  margin-top: 18px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
+.mission-item-button {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.mission-item-button:hover {
+  background-color: #FFF4DF;
+  border-color: rgba(81, 65, 104, 0.3);
+  transform: translateY(-1px);
+}
+
+.popup-card-wide {
+  max-width: 660px;
+  max-height: 86vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.popup-body {
+  margin-top: 14px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding-right: 4px;
+}
+
+.history-meta-line {
+  font-size: 13px;
+  font-weight: 700;
+  color: #625F70;
+}
+
+.history-meta-spaced {
+  margin-top: 8px;
+}
+
+.history-section {
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFCF7;
+}
+
+.history-section-soft {
+  background-color: #FFF9EF;
+}
+
+.history-section-title {
+  font-family: "Fredoka", "Nunito", sans-serif;
+  font-size: 17px;
+  font-weight: 700;
+  color: #514168;
+  margin-bottom: 6px;
+}
+
+.history-section-text {
+  font-size: 14px;
+  font-weight: 600;
+  color: #514168;
+  line-height: 1.5;
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #514168;
+}
+
+.history-step-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-left: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #514168;
+}
+
+.history-reply-card {
+  margin-top: 10px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(81, 65, 104, 0.14);
+  background-color: #FFFFFF;
 }

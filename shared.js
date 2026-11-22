@@ -97,10 +97,23 @@ function clearCurrentUser() {
   } catch (error) {}
 }
 
-// Gets the list of finished adventures saved on this browser
+// Builds the storage key name for the signed-in user's adventures
+function getUserAdventuresKey() {
+  var user = getCurrentUser();
+  if (!user || !user.username) {
+    return '';
+  }
+  return ADVENTURES_STORAGE_KEY + '_' + String(user.username).trim().toLowerCase();
+}
+
+// Gets the list of finished adventures saved for the signed-in user
 function getSavedAdventures() {
+  var storageKey = getUserAdventuresKey();
+  if (!storageKey) {
+    return [];
+  }
   try {
-    var savedText = localStorage.getItem(ADVENTURES_STORAGE_KEY);
+    var savedText = localStorage.getItem(storageKey);
     var list = savedText ? JSON.parse(savedText) : [];
     if (!list || list.length === undefined) {
       return [];
@@ -111,21 +124,54 @@ function getSavedAdventures() {
   }
 }
 
-// Adds a newly finished adventure to the top of the list
+// Adds a newly finished adventure to the top of the signed-in user's list
 function saveNewAdventure(adventureItem) {
+  var storageKey = getUserAdventuresKey();
+  if (!storageKey) {
+    return [];
+  }
   var list = getSavedAdventures();
   list.unshift(adventureItem);
   try {
-    localStorage.setItem(ADVENTURES_STORAGE_KEY, JSON.stringify(list));
+    localStorage.setItem(storageKey, JSON.stringify(list));
   } catch (error) {}
   return list;
 }
 
-// Clears all saved adventures from this browser
+// Clears all saved adventures for the signed-in user
 function clearAdventures() {
+  var storageKey = getUserAdventuresKey();
+  if (!storageKey) {
+    return;
+  }
   try {
-    localStorage.setItem(ADVENTURES_STORAGE_KEY, JSON.stringify([]));
+    localStorage.setItem(storageKey, JSON.stringify([]));
   } catch (error) {}
+}
+
+// Formats the current date and time in simple words for activity history
+function getCurrentTimeText() {
+  var now = new Date();
+  var monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  var month = monthNames[now.getMonth()];
+  var day = now.getDate();
+  var year = now.getFullYear();
+  var hours = now.getHours();
+  var minutes = now.getMinutes();
+  var amOrPm = 'AM';
+  if (hours >= 12) {
+    amOrPm = 'PM';
+  }
+  if (hours === 0) {
+    hours = 12;
+  } else if (hours > 12) {
+    hours = hours - 12;
+  }
+  var minuteText = String(minutes);
+  if (minutes < 10) {
+    minuteText = '0' + minuteText;
+  }
+  return month + ' ' + day + ', ' + year + ' at ' + hours + ':' + minuteText + ' ' + amOrPm;
 }
 
 // Checks if the visitor already picked an activity before signing in
