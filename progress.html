@@ -27,6 +27,8 @@
       <main id="main-content" class="page-content">
         <!-- Progress summary, skill counters, activity cards, and completed mission trail -->
         <section id="progress-root" class="wide-page"></section>
+        <!-- Popup window showing saved details when an activity is clicked -->
+        <div id="adventure-modal-root"></div>
       </main>
 
       <!-- Bottom footer -->
@@ -47,6 +49,247 @@
           }
         }
         return total;
+      }
+
+      // Turns a list of text lines into simple bullet items for the history popup
+      function makeHistoryBulletList(items) {
+        if (!items || items.length === 0) {
+          return '';
+        }
+        var html = '<ul class="history-list">';
+        for (var i = 0; i < items.length; i++) {
+          html += '<li>&bull; ' + makeTextSafe(items[i]) + '</li>';
+        }
+        html += '</ul>';
+        return html;
+      }
+
+      // Turns a list of steps into numbered items for the history popup
+      function makeHistoryStepList(items) {
+        if (!items || items.length === 0) {
+          return '';
+        }
+        var html = '<ol class="history-step-list">';
+        for (var i = 0; i < items.length; i++) {
+          html += '<li>' + makeTextSafe(items[i]) + '</li>';
+        }
+        html += '</ol>';
+        return html;
+      }
+
+      // Builds the inside content of the popup showing what was done in one finished activity
+      function buildAdventureHistoryHtml(item) {
+        if (!item || !item.details) {
+          return (
+            '<div class="history-section history-section-soft">' +
+              '<h3 class="history-section-title">Completed Activity</h3>' +
+              '<p class="history-section-text">' +
+                'This mission was saved before full activity notes were turned on. Any new activities you finish will show everything you did right here!' +
+              '</p>' +
+            '</div>'
+          );
+        }
+
+        var d = item.details;
+        var html = '';
+
+        // History layout for AI Game Inventor
+        if (item.feature === 'game-inventor') {
+          if (d.difficulty) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">Difficulty</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.difficulty) + '</p>' +
+              '</div>';
+          }
+          if (d.objective) {
+            html +=
+              '<div class="history-section history-section-soft">' +
+                '<h3 class="history-section-title">Game Goal</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.objective) + '</p>' +
+              '</div>';
+          }
+          if (d.materials && d.materials.length > 0) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">Materials Used</h3>' +
+                makeHistoryBulletList(d.materials) +
+              '</div>';
+          }
+          if (d.instructions && d.instructions.length > 0) {
+            html +=
+              '<div class="history-section history-section-soft">' +
+                '<h3 class="history-section-title">How to Play</h3>' +
+                makeHistoryStepList(d.instructions) +
+              '</div>';
+          }
+          if (d.appliedModification) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">Rule Change You Asked For</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.appliedModification) + '</p>' +
+              '</div>';
+          }
+          if (d.userNotes) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">What You Typed</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.userNotes) + '</p>' +
+              '</div>';
+          }
+          return html;
+        }
+
+        // History layout for AI Young Inventors Lab
+        if (item.feature === 'creative-mission') {
+          if (d.story) {
+            html +=
+              '<div class="history-section history-section-soft">' +
+                '<h3 class="history-section-title">Challenge Story</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.story) + '</p>' +
+              '</div>';
+          }
+          if (d.goal) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">Your Building Goal</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.goal) + '</p>' +
+              '</div>';
+          }
+          if (d.suggestedMaterials && d.suggestedMaterials.length > 0) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">Suggested Materials</h3>' +
+                makeHistoryBulletList(d.suggestedMaterials) +
+              '</div>';
+          }
+          if (d.safetyReminder) {
+            html +=
+              '<div class="history-section history-section-soft">' +
+                '<h3 class="history-section-title">Safety Reminder</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.safetyReminder) + '</p>' +
+              '</div>';
+          }
+          if (d.explanation) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">How You Explained Your Invention</h3>' +
+                '<p class="history-section-text">' + makeTextSafe(d.explanation) + '</p>' +
+              '</div>';
+          }
+          if (d.feedback) {
+            html +=
+              '<div class="history-section history-section-soft">' +
+                '<h3 class="history-section-title">Hoot\'s Review</h3>';
+            if (d.feedback.improvementSuggestions && d.feedback.improvementSuggestions.length > 0) {
+              html += '<p class="history-meta-line">Hoot\'s Thoughts:</p>' + makeHistoryBulletList(d.feedback.improvementSuggestions);
+            }
+            if (d.feedback.guidingQuestions && d.feedback.guidingQuestions.length > 0) {
+              html += '<p class="history-meta-line history-meta-spaced">Questions for You:</p>' + makeHistoryBulletList(d.feedback.guidingQuestions);
+            }
+            if (d.feedback.followUpChallenges && d.feedback.followUpChallenges.length > 0) {
+              html += '<p class="history-meta-line history-meta-spaced">Next Mission:</p>' + makeHistoryBulletList(d.feedback.followUpChallenges);
+            }
+            html += '</div>';
+          }
+          if (d.replies && d.replies.length > 0) {
+            html +=
+              '<div class="history-section">' +
+                '<h3 class="history-section-title">Follow-Up Test Replies</h3>';
+            for (var r = 0; r < d.replies.length; r++) {
+              var replyItem = d.replies[r];
+              html +=
+                '<div class="history-reply-card">' +
+                  '<p class="history-section-text"><strong>You wrote:</strong> ' + makeTextSafe(replyItem.userReply) + '</p>';
+              if (replyItem.feedback && replyItem.feedback.improvementSuggestions) {
+                html += '<p class="history-meta-line history-meta-spaced">Hoot replied:</p>' + makeHistoryBulletList(replyItem.feedback.improvementSuggestions);
+              }
+              html += '</div>';
+            }
+            html += '</div>';
+          }
+          return html;
+        }
+
+        // History layout for AI Career Quest
+        if (d.profession) {
+          html +=
+            '<div class="history-section">' +
+              '<h3 class="history-section-title">Chosen Career</h3>' +
+              '<p class="history-section-text">' + makeTextSafe(d.profession) + '</p>' +
+            '</div>';
+        }
+        if (d.choicesHistory && d.choicesHistory.length > 0) {
+          html +=
+            '<div class="history-section history-section-soft">' +
+              '<h3 class="history-section-title">Choices You Picked</h3>';
+          for (var c = 0; c < d.choicesHistory.length; c++) {
+            var picked = d.choicesHistory[c];
+            html +=
+              '<div class="history-reply-card">' +
+                '<p class="history-meta-line">Scene ' + makeTextSafe(picked.sceneNumber) + ': ' + makeTextSafe(picked.question) + '</p>' +
+                '<p class="history-section-text">' + makeTextSafe(picked.choiceTitle) + '</p>' +
+              '</div>';
+          }
+          html += '</div>';
+        }
+        if (d.outcomeMessage) {
+          html +=
+            '<div class="history-section">' +
+              '<h3 class="history-section-title">Mission Outcome</h3>' +
+              '<p class="history-section-text">' + makeTextSafe(d.outcomeMessage) + '</p>' +
+            '</div>';
+        }
+        if (d.notes) {
+          html +=
+            '<div class="history-section history-section-soft">' +
+              '<h3 class="history-section-title">Your Mission Notes</h3>' +
+              '<p class="history-section-text">' + makeTextSafe(d.notes) + '</p>' +
+            '</div>';
+        }
+        return html;
+      }
+
+      // Closes the activity history popup window
+      function closeAdventureModal() {
+        var modalRoot = document.getElementById('adventure-modal-root');
+        if (modalRoot) {
+          modalRoot.innerHTML = '';
+        }
+      }
+
+      // Opens a popup showing everything done in the clicked activity
+      function openAdventureModal(adventureItem) {
+        var modalRoot = document.getElementById('adventure-modal-root');
+        if (!modalRoot || !adventureItem) return;
+
+        var typeLabel = adventureItem.activityName || ACTIVITY_TITLES[adventureItem.feature] || 'Completed Activity';
+        modalRoot.innerHTML =
+          '<div id="history-popup-backdrop" class="popup-background"></div>' +
+          '<div class="popup-wrapper">' +
+            '<div class="popup-card popup-card-wide" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">' +
+              '<div class="popup-header">' +
+                '<div>' +
+                  '<p class="small-label">' + makeTextSafe(typeLabel) + '</p>' +
+                  '<h2 id="history-modal-title" class="popup-title">' + makeTextSafe(adventureItem.title) + '</h2>' +
+                  '<p class="history-meta-line">' + makeTextSafe(adventureItem.domain) + ' - Completed ' + makeTextSafe(adventureItem.completedAt) + '</p>' +
+                '</div>' +
+                '<button type="button" id="close-history-x-btn" class="close-circle-button" aria-label="Close">' +
+                  drawSmallIcon('x', 'medium-icon') +
+                '</button>' +
+              '</div>' +
+              '<div class="popup-body">' +
+                buildAdventureHistoryHtml(adventureItem) +
+              '</div>' +
+              '<div class="popup-buttons">' +
+                '<button type="button" id="close-history-done-btn" class="button button-yellow button-wide">Close</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>';
+
+        document.getElementById('history-popup-backdrop').onclick = closeAdventureModal;
+        document.getElementById('close-history-x-btn').onclick = closeAdventureModal;
+        document.getElementById('close-history-done-btn').onclick = closeAdventureModal;
       }
 
       // Draws the whole progress page based on the current user and saved missions
@@ -90,7 +333,20 @@
         }
 
         var historyHtml = '';
-        if (adventures.length === 0) {
+        if (!user) {
+          historyHtml =
+            '<div class="empty-trail-box">' +
+              '<div id="empty-trail-owl" class="empty-trail-owl"></div>' +
+              '<h3 class="empty-trail-title">Log in to see your saved activities!</h3>' +
+              '<p class="empty-trail-text">' +
+                'Your finished games, inventions, and career missions stay saved privately under your own account.' +
+              '</p>' +
+              '<div class="empty-trail-actions">' +
+                '<a href="./login.html" class="button button-yellow">Log in</a>' +
+                '<a href="./register.html" class="button button-white">Create Adult Account</a>' +
+              '</div>' +
+            '</div>';
+        } else if (adventures.length === 0) {
           historyHtml =
             '<div class="empty-trail-box">' +
               '<div id="empty-trail-owl" class="empty-trail-owl"></div>' +
@@ -104,18 +360,20 @@
           for (var j = 0; j < adventures.length; j++) {
             var item = adventures[j];
             historyHtml +=
-              '<li class="mission-item">' +
-                '<div class="mission-left">' +
-                  '<div class="mission-number">' + (j + 1) + '</div>' +
-                  '<div>' +
-                    '<h3 class="mission-title">' + makeTextSafe(item.title) + '</h3>' +
-                    '<p class="small-badge-text">' + makeTextSafe(item.domain) + ' - Completed ' + makeTextSafe(item.completedAt) + '</p>' +
+              '<li>' +
+                '<button type="button" class="mission-item mission-item-button" data-adventure-index="' + j + '">' +
+                  '<div class="mission-left">' +
+                    '<div class="mission-number">' + (j + 1) + '</div>' +
+                    '<div>' +
+                      '<h3 class="mission-title">' + makeTextSafe(item.title) + '</h3>' +
+                      '<p class="small-badge-text">' + makeTextSafe(item.domain) + ' - Completed ' + makeTextSafe(item.completedAt) + '</p>' +
+                    '</div>' +
                   '</div>' +
-                '</div>' +
-                '<div class="mission-star">' +
-                  drawSmallIcon('star', 'small-icon') +
-                  '<span>Offline Star</span>' +
-                '</div>' +
+                  '<div class="mission-star">' +
+                    drawSmallIcon('star', 'small-icon') +
+                    '<span>View Details</span>' +
+                  '</div>' +
+                '</button>' +
               '</li>';
           }
           historyHtml += '</ol>';
@@ -127,7 +385,7 @@
         }
 
         var clearButtonHtml = '';
-        if (adventures.length > 0) {
+        if (user && adventures.length > 0) {
           clearButtonHtml = '<button type="button" id="clear-trail-btn" class="back-button">Clear Trail</button>';
         }
 
@@ -193,16 +451,28 @@
 
         drawActivityCards(document.getElementById('progress-activities-box'));
 
+        var missionButtons = document.querySelectorAll('[data-adventure-index]');
+        for (var m = 0; m < missionButtons.length; m++) {
+          missionButtons[m].onclick = function () {
+            var idx = parseInt(this.getAttribute('data-adventure-index'), 10);
+            openAdventureModal(adventures[idx]);
+          };
+        }
+
         var clearTrailButton = document.getElementById('clear-trail-btn');
         if (clearTrailButton) {
           clearTrailButton.onclick = function () {
             clearAdventures();
+            closeAdventureModal();
             drawProgressPage();
           };
         }
       }
 
-      window.onUserLoggedOut = drawProgressPage;
+      window.onUserLoggedOut = function () {
+        closeAdventureModal();
+        drawProgressPage();
+      };
       drawProgressPage();
     </script>
   </body>
