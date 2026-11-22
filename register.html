@@ -16,6 +16,7 @@
     />
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./auth.css" />
+    <style>select.invalid { border-color: #d62839 !important; background: #fff5f5; } .consent-box.invalid { border-color: #d62839 !important; background: #fff5f5; }</style>
   <script src="/_aistudio-iframe.js?v=29045eb3"></script></head>
   <body>
     <div class="page-wrapper">
@@ -73,7 +74,7 @@
               </div>
 
               <div class="field-group">
-                <label for="username-input" class="field-label">Username</label>
+                <label for="username-input" class="field-label">Username <span class="required">*</span></label>
                 <input
                   id="username-input"
                   type="text"
@@ -81,12 +82,14 @@
                   autocomplete="username"
                   placeholder="Create a username (at least 4 characters)"
                   class="text-input"
+                  aria-describedby="username-error"
                   required
                 />
+                <p class="field-error" id="username-error" hidden></p>
               </div>
 
               <div class="field-group">
-                <label for="password-input" class="field-label">Password</label>
+                <label for="password-input" class="field-label">Password <span class="required">*</span></label>
                 <div class="password-box">
                   <input
                     id="password-input"
@@ -95,10 +98,12 @@
                     autocomplete="new-password"
                     placeholder="Create a password"
                     class="text-input"
+                    aria-describedby="password-error"
                     required
                   />
                   <button type="button" id="show-password-btn" class="eye-button" aria-label="Show password"></button>
                 </div>
+                <p class="field-error" id="password-error" hidden></p>
 
                 <div>
                   <button type="button" id="password-rules-btn" class="password-help-button">
@@ -110,7 +115,7 @@
                 <div id="password-rules-box" class="password-rules-box hidden">
                   <p>Password rules:</p>
                   <ul class="password-rules-list">
-                    <li>- At least 5 characters long</li>
+                    <li>- At least 8 characters long</li>
                     <li>- At least 1 number (0 to 9)</li>
                     <li>- At least 1 special character (like ! @ # $ % &amp; *)</li>
                     <li>- Confirm password must match your password</li>
@@ -119,7 +124,7 @@
               </div>
 
               <div class="field-group">
-                <label for="confirm-password-input" class="field-label">Confirm Password</label>
+                <label for="confirm-password-input" class="field-label">Confirm Password <span class="required">*</span></label>
                 <div class="password-box">
                   <input
                     id="confirm-password-input"
@@ -128,42 +133,49 @@
                     autocomplete="new-password"
                     placeholder="Repeat your password"
                     class="text-input"
+                    aria-describedby="confirm-error"
                     required
                   />
                   <button type="button" id="show-confirm-btn" class="eye-button" aria-label="Show confirm password"></button>
                 </div>
+                <p class="field-error" id="confirm-error" hidden></p>
               </div>
 
               <!-- Security question and answer in case the user forgets their password -->
               <div class="field-group">
-                <label for="security-question-select" class="field-label">Adult Security Question (for password recovery)</label>
+                <label for="security-question-select" class="field-label">Adult Security Question (for password recovery) <span class="required">*</span></label>
                 <select id="security-question-select" name="security_question" class="select-input" required>
                   <option value="" disabled selected>Choose one security question</option>
                   <option value="What city were you born in?">What city were you born in?</option>
                   <option value="What was your first pet's name?">What was your first pet's name?</option>
                   <option value="What's your mother's name?">What's your mother's name?</option>
                 </select>
+                <p class="field-error" id="security-question-error" hidden></p>
               </div>
 
               <div class="field-group">
-                <label for="security-answer-input" class="field-label">Security Answer</label>
+                <label for="security-answer-input" class="field-label">Security Answer <span class="required">*</span></label>
                 <input
                   id="security-answer-input"
                   type="text"
                   name="security_answer"
                   placeholder="Enter a secret answer only you know"
                   class="text-input"
+                  aria-describedby="security-answer-error"
                   required
                 />
+                <p class="field-error" id="security-answer-error" hidden></p>
               </div>
 
-              <label class="consent-box">
+              <label class="consent-box" id="consent-box">
                 <input id="privacy-consent-checkbox" type="checkbox" required />
                 <span>
                   I am a parent, guardian, or educator and I agree to the
                   <button type="button" id="inline-privacy-btn" class="text-link">Privacy &amp; Child Safety Policy</button>.
                 </span>
               </label>
+
+              <p class="field-error" id="consent-error" hidden></p>
 
               <button type="submit" class="button button-yellow button-wide">Continue to Profile Setup</button>
 
@@ -190,7 +202,7 @@
                 </div>
 
                 <div class="field-group">
-                  <label for="child-nickname-input" class="field-label">Child's Adventure Nickname</label>
+                  <label for="child-nickname-input" class="field-label">Child's Adventure Nickname <span class="required">*</span></label>
                   <input
                     id="child-nickname-input"
                     type="text"
@@ -198,18 +210,21 @@
                     maxlength="20"
                     placeholder="e.g., SunnyExplorer"
                     class="text-input"
+                    aria-describedby="nickname-error"
                     required
                   />
+                  <p class="field-error" id="nickname-error" hidden></p>
                 </div>
 
                 <div class="field-group">
-                  <label for="child-age-select" class="field-label">Child's Age Group (6 to 12)</label>
+                  <label for="child-age-select" class="field-label">Child's Age Group (6 to 12) <span class="required">*</span></label>
                   <select id="child-age-select" name="age_group" class="select-input" required>
                     <option value="" disabled selected>Select child's age group</option>
                     <option value="6-8">Ages 6 to 8</option>
                     <option value="9-10">Ages 9 to 10</option>
                     <option value="11-12">Ages 11 to 12</option>
                   </select>
+                  <p class="field-error" id="age-error" hidden></p>
                 </div>
 
                 <div class="field-group">
@@ -239,7 +254,7 @@
                 </div>
 
                 <div class="field-group">
-                  <label for="classroom-age-select" class="field-label">What age group is the classroom of children you are teaching?</label>
+                  <label for="classroom-age-select" class="field-label">What age group is the classroom of children you are teaching? <span class="required">*</span></label>
                   <select id="classroom-age-select" name="classroom_age_group" class="select-input" required>
                     <option value="" disabled selected>Select classroom age group</option>
                     <option value="6-8">Ages 6 to 8</option>
@@ -247,6 +262,7 @@
                     <option value="11-12">Ages 11 to 12</option>
                     <option value="6-12">Mixed ages (6 to 12)</option>
                   </select>
+                  <p class="field-error" id="classroom-error" hidden></p>
                 </div>
 
                 <div class="info-box">
@@ -288,7 +304,7 @@
       var accountType = 'parent';
       var chosenAvatar = 'owl';
 
-      // Shows or hides the red error banner
+      // Shows or hides the error banner at the top
       function showErrorMessage(message) {
         var errorBox = document.getElementById('error-box');
         var errorText = document.getElementById('error-message');
@@ -298,8 +314,63 @@
         } else {
           errorText.textContent = message;
           errorBox.classList.remove('hidden');
+          errorBox.scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
+
+      // Shows a red border and a red message under one field (or clears them if message is empty)
+      // Returns true when the field is fine
+      function showFieldFeedback(inputId, errorId, message) {
+        var input = document.getElementById(inputId);
+        var errorText = document.getElementById(errorId);
+        var hasProblem = !!message;
+        input.classList.toggle('invalid', hasProblem);
+        input.setAttribute('aria-invalid', hasProblem ? 'true' : 'false');
+        errorText.textContent = message || '';
+        errorText.hidden = !hasProblem;
+        return !hasProblem;
+      }
+
+      // Checks the confirm password box against the password box
+      function checkConfirmError() {
+        var password = document.getElementById('password-input').value;
+        var confirmPassword = document.getElementById('confirm-password-input').value;
+        if (confirmPassword && password !== confirmPassword) {
+          return 'Passwords do not match.';
+        }
+        return '';
+      }
+
+      // Checks fields live while the adult types, and clears the top banner
+      document.getElementById('username-input').addEventListener('input', function () {
+        showErrorMessage('');
+        showFieldFeedback('username-input', 'username-error', checkUsernameError(this.value));
+      });
+      document.getElementById('password-input').addEventListener('input', function () {
+        showErrorMessage('');
+        showFieldFeedback('password-input', 'password-error', checkPasswordError(this.value));
+        if (document.getElementById('confirm-password-input').value) {
+          showFieldFeedback('confirm-password-input', 'confirm-error', checkConfirmError());
+        }
+      });
+      document.getElementById('confirm-password-input').addEventListener('input', function () {
+        showErrorMessage('');
+        showFieldFeedback('confirm-password-input', 'confirm-error', checkConfirmError());
+      });
+
+      document.getElementById('security-question-select').addEventListener('change', function () {
+        showErrorMessage('');
+        showFieldFeedback('security-question-select', 'security-question-error', '');
+      });
+      document.getElementById('security-answer-input').addEventListener('input', function () {
+        showErrorMessage('');
+        var message = this.value.trim().length < 2 ? 'Please enter an answer (at least 2 characters).' : '';
+        showFieldFeedback('security-answer-input', 'security-answer-error', message);
+      });
+      document.getElementById('privacy-consent-checkbox').addEventListener('change', function () {
+        showErrorMessage('');
+        showFieldFeedback('consent-box', 'consent-error', this.checked ? '' : 'Please agree to the privacy policy to continue.');
+      });
 
       // Connects an eye button to toggle password text visibility
       function setupPasswordEye(inputId, buttonId) {
@@ -399,32 +470,19 @@
         var securityAnswer = document.getElementById('security-answer-input').value.trim();
         var consentChecked = document.getElementById('privacy-consent-checkbox').checked;
 
-        var usernameProblem = checkUsernameError(username);
-        if (usernameProblem) {
-          showErrorMessage(usernameProblem);
+        // Check every field at once and mark each wrong one in red
+        var usernameOk = showFieldFeedback('username-input', 'username-error', checkUsernameError(username));
+        var passwordOk = showFieldFeedback('password-input', 'password-error', checkPasswordError(password));
+        var confirmOk = showFieldFeedback('confirm-password-input', 'confirm-error', password !== confirmPassword ? 'Passwords do not match.' : '');
+        var questionOk = showFieldFeedback('security-question-select', 'security-question-error', securityQuestion ? '' : 'Please choose a security question.');
+        var answerOk = showFieldFeedback('security-answer-input', 'security-answer-error', securityAnswer.length >= 2 ? '' : 'Please enter an answer (at least 2 characters).');
+        var consentOk = showFieldFeedback('consent-box', 'consent-error', consentChecked ? '' : 'Please agree to the privacy policy to continue.');
+
+        if (!usernameOk || !passwordOk || !confirmOk || !questionOk || !answerOk || !consentOk) {
+          showErrorMessage('Please fix the fields marked in red.');
           return;
         }
-        var passwordProblem = checkPasswordError(password);
-        if (passwordProblem) {
-          showErrorMessage(passwordProblem);
-          return;
-        }
-        if (password !== confirmPassword) {
-          showErrorMessage('Passwords do not match.');
-          return;
-        }
-        if (!securityQuestion) {
-          showErrorMessage('Please choose a security question in case you ever forget your password.');
-          return;
-        }
-        if (securityAnswer.length < 2) {
-          showErrorMessage('Please enter an answer to your security question (at least 2 characters).');
-          return;
-        }
-        if (!consentChecked) {
-          showErrorMessage('Please agree to the privacy policy to continue.');
-          return;
-        }
+        showErrorMessage('');
         goToStep(2);
       };
 
@@ -484,8 +542,20 @@
         showAvatar(document.getElementById('preview-avatar-box'), chosenAvatar, 54, true);
       }
 
-      document.getElementById('child-nickname-input').oninput = updateExplorerPreview;
-      document.getElementById('child-age-select').onchange = updateExplorerPreview;
+      document.getElementById('child-nickname-input').oninput = function () {
+        updateExplorerPreview();
+        showErrorMessage('');
+        showFieldFeedback('child-nickname-input', 'nickname-error', checkNicknameError(this.value));
+      };
+      document.getElementById('child-age-select').onchange = function () {
+        updateExplorerPreview();
+        showErrorMessage('');
+        showFieldFeedback('child-age-select', 'age-error', '');
+      };
+      document.getElementById('classroom-age-select').onchange = function () {
+        showErrorMessage('');
+        showFieldFeedback('classroom-age-select', 'classroom-error', '');
+      };
       drawAvatarGrid();
       updateExplorerPreview();
 
@@ -500,15 +570,13 @@
         if (accountType === 'parent') {
           var nickname = document.getElementById('child-nickname-input').value;
           var ageGroup = document.getElementById('child-age-select').value;
-          var nicknameProblem = checkNicknameError(nickname);
-          if (nicknameProblem) {
-            showErrorMessage(nicknameProblem);
+          var nicknameOk = showFieldFeedback('child-nickname-input', 'nickname-error', checkNicknameError(nickname));
+          var ageOk = showFieldFeedback('child-age-select', 'age-error', ageGroup ? '' : "Please select your child's age group.");
+          if (!nicknameOk || !ageOk) {
+            showErrorMessage('Please fix the fields marked in red.');
             return;
           }
-          if (!ageGroup) {
-            showErrorMessage("Please select your child's age group.");
-            return;
-          }
+          showErrorMessage('');
           saveFullAccount({
             username: username,
             password: password,
@@ -521,10 +589,12 @@
           });
         } else {
           var classroomAge = document.getElementById('classroom-age-select').value;
-          if (!classroomAge) {
-            showErrorMessage('Please select the age group of the classroom you are teaching.');
+          var classroomOk = showFieldFeedback('classroom-age-select', 'classroom-error', classroomAge ? '' : 'Please select the age group of the classroom you are teaching.');
+          if (!classroomOk) {
+            showErrorMessage('Please fix the fields marked in red.');
             return;
           }
+          showErrorMessage('');
           saveFullAccount({
             username: username,
             password: password,

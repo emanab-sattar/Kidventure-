@@ -73,14 +73,16 @@ function updatePasswordForUsername(username, newPassword) {
 
 // Deletes a user's account and clears all saved adventures from this browser
 function deleteProfileByUsername(username) {
-  clearCurrentUser();
   clearAdventures();
+  clearCurrentUser();
   clearActivityChoice();
   try {
     if (username) {
+      var cleanName = String(username).trim().toLowerCase();
       var profiles = getAllProfiles();
-      delete profiles[String(username).toLowerCase()];
+      delete profiles[cleanName];
       localStorage.setItem(PROFILES_STORAGE_KEY, JSON.stringify(profiles));
+      localStorage.removeItem(ADVENTURES_STORAGE_KEY + '_' + cleanName);
     }
   } catch (error) {}
 }
@@ -143,8 +145,8 @@ function checkPasswordError(rawPassword) {
     }
   }
 
-  if (password.length < 5 || !hasNumber || !hasSymbol) {
-    return 'Password must be at least 5 characters and include at least 1 number and 1 special character.';
+  if (password.length < 8 || !hasNumber || !hasSymbol) {
+    return 'Password must be at least 8 characters and include at least 1 number and 1 special character.';
   }
   return '';
 }
